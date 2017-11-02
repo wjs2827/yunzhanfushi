@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.UserCardsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.UserCards" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="card_no" property="cardNo" jdbcType="VARCHAR" />
+    <result column="card_points" property="cardPoints" jdbcType="INTEGER" />
+    <result column="history_used_points" property="historyUsedPoints" jdbcType="INTEGER" />
+    <result column="term_time" property="termTime" jdbcType="INTEGER" />
+    <result column="start_time" property="startTime" jdbcType="TIMESTAMP" />
+    <result column="package_type_id" property="packageTypeId" jdbcType="VARCHAR" />
+    <result column="promoter_code" property="promoterCode" jdbcType="VARCHAR" />
+    <result column="is_activated" property="isActivated" jdbcType="BIT" />
+    <result column="sn_code" property="snCode" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, card_no, card_points, history_used_points, term_time, start_time, package_type_id, 
+    promoter_code, is_activated, sn_code, created_at, updated_at, status
+  </sql>
+  
+  <!-- 根据参数信息查询会员年信息 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.wmeimob.yzfs.vo.UserCardsVO" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_cards
+    <where>
+      status=1
+      <if test="id !=null and id!=''">
+        and id = #{id,jdbcType=INTEGER}
+      </if>
+      <if test="userId !=null and userId!='' ">
+        and user_id = #{userId,jdbcType=INTEGER}
+      </if>
+    </where>
+    limit 0,1
+  </select>
+  
+  <!--新增会员卡信息 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.vo.UserCardsVO" useGeneratedKeys="true" keyProperty="id">
+    insert into user_cards
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="cardNo != null" >
+        card_no,
+      </if>
+      <if test="cardPoints != null" >
+        card_points,
+      </if>
+      <if test="historyUsedPoints != null" >
+        history_used_points,
+      </if>
+      <if test="termTime != null" >
+        term_time,
+      </if>
+      <if test="startTime != null" >
+        start_time,
+      </if>
+      <if test="packageTypeId != null" >
+        package_type_id,
+      </if>
+      <if test="promoterCode != null" >
+        promoter_code,
+      </if>
+      <if test="isActivated != null" >
+        is_activated,
+      </if>
+      <if test="snCode != null" >
+        sn_code,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNo != null" >
+        #{cardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="cardPoints != null" >
+        #{cardPoints,jdbcType=INTEGER},
+      </if>
+      <if test="historyUsedPoints != null" >
+        #{historyUsedPoints,jdbcType=INTEGER},
+      </if>
+      <if test="termTime != null" >
+        #{termTime,jdbcType=INTEGER},
+      </if>
+      <if test="startTime != null" >
+        #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="packageTypeId != null" >
+        #{packageTypeId,jdbcType=VARCHAR},
+      </if>
+      <if test="promoterCode != null" >
+        #{promoterCode,jdbcType=VARCHAR},
+      </if>
+      <if test="isActivated != null" >
+        #{isActivated,jdbcType=BIT},
+      </if>
+      <if test="snCode != null" >
+        #{snCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <!-- 根据参数修改会员卡信息 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.vo.UserCardsVO" >
+    update user_cards
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNo != null" >
+        card_no = #{cardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="cardPoints != null" >
+        card_points = #{cardPoints,jdbcType=INTEGER},
+      </if>
+      <if test="historyUsedPoints != null" >
+        history_used_points = #{historyUsedPoints,jdbcType=INTEGER},
+      </if>
+      <if test="termTime != null" >
+        term_time = #{termTime,jdbcType=INTEGER},
+      </if>
+      <if test="startTime != null" >
+        start_time = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="packageTypeId != null" >
+        package_type_id = #{packageTypeId,jdbcType=VARCHAR},
+      </if>
+      <if test="promoterCode != null" >
+        promoter_code = #{promoterCode,jdbcType=VARCHAR},
+      </if>
+      <if test="isActivated != null" >
+        is_activated = #{isActivated,jdbcType=BIT},
+      </if>
+      <if test="snCode != null" >
+        sn_code = #{snCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

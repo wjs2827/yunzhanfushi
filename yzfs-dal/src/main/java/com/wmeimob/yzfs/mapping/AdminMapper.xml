@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.AdminMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.Admin" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="login_name" property="loginName" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="role_id" property="roleId" jdbcType="VARCHAR" />
+    <result column="real_name" property="realName" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="is_disable" property="isDisable" jdbcType="BIT" />
+    <result column="is_fixed" property="isFixed" jdbcType="BIT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, login_name, password, role_id, real_name, mobile, email, is_disable, is_fixed, 
+    create_time, update_time, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from s_admin
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from s_admin
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.wmeimob.yzfs.model.Admin" >
+    insert into s_admin (id, login_name, password, 
+      role_id, real_name, mobile, 
+      email, is_disable, is_fixed, 
+      create_time, update_time, status
+      )
+    values (#{id,jdbcType=VARCHAR}, #{loginName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{roleId,jdbcType=VARCHAR}, #{realName,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, 
+      #{email,jdbcType=VARCHAR}, #{isDisable,jdbcType=BIT}, #{isFixed,jdbcType=BIT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=BIT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.Admin" >
+    insert into s_admin
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="loginName != null" >
+        login_name,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="roleId != null" >
+        role_id,
+      </if>
+      <if test="realName != null" >
+        real_name,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="isDisable != null" >
+        is_disable,
+      </if>
+      <if test="isFixed != null" >
+        is_fixed,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="loginName != null" >
+        #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="roleId != null" >
+        #{roleId,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null" >
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="isDisable != null" >
+        #{isDisable,jdbcType=BIT},
+      </if>
+      <if test="isFixed != null" >
+        #{isFixed,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.Admin" >
+    update s_admin
+    <set >
+      <if test="loginName != null" >
+        login_name = #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="roleId != null" >
+        role_id = #{roleId,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null" >
+        real_name = #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="isDisable != null" >
+        is_disable = #{isDisable,jdbcType=BIT},
+      </if>
+      <if test="isFixed != null" >
+        is_fixed = #{isFixed,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wmeimob.yzfs.model.Admin" >
+    update s_admin
+    set login_name = #{loginName,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      role_id = #{roleId,jdbcType=VARCHAR},
+      real_name = #{realName,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      is_disable = #{isDisable,jdbcType=BIT},
+      is_fixed = #{isFixed,jdbcType=BIT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=BIT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 通过Example查询 -->
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.wmeimob.yzfs.model.Admin" >
+    select 
+    <include refid="Base_Column_List" />
+    from s_admin where status=1
+    <if test="loginName != null" >
+      and login_name = #{loginName,jdbcType=VARCHAR}
+    </if>
+    <if test="password != null" >
+      and password = #{password,jdbcType=VARCHAR}
+    </if>
+    <if test="roleId != null" >
+      and role_id = #{roleId,jdbcType=VARCHAR}
+    </if>
+    <if test="realName != null" >
+      and real_name like CONCAT('%',#{realName,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="mobile != null" >
+      and mobile like CONCAT('%',#{mobile,jdbcType=BIGINT},'%')
+    </if>
+    <if test="email != null" >
+      and email like CONCAT('%', #{email,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="isDisable != null" >
+      and is_disable = #{isDisable,jdbcType=BIT}
+    </if>
+    <if test="isFixed != null" >
+      and is_fixed = #{isFixed,jdbcType=BIT}
+    </if>
+  </select>
+  
+  <!-- 查询Admin列表，包括roleName -->
+  <select id="selectAdminWithRole" resultType="com.wmeimob.yzfs.vo.AdminVO" parameterType="com.wmeimob.yzfs.model.Admin" >
+    select 
+    a.id,a.login_name loginName,
+    a.role_id roleId,r.name roleName,
+    a.real_name realName,a.mobile,
+    a.email,a.is_disable isDisable,
+    a.is_fixed isFixed
+    from s_admin a 
+    inner join s_role r on r.id=a.role_id and r.status=1
+    where a.status=1
+    <if test="loginName != null" >
+      and login_name like CONCAT('%',#{loginName,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="password != null" >
+      and password = #{password,jdbcType=VARCHAR}
+    </if>
+    <if test="roleId != null" >
+      and role_id = #{roleId,jdbcType=VARCHAR}
+    </if>
+    <if test="realName != null" >
+      and real_name like CONCAT('%',#{realName,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="mobile != null" >
+      and mobile like CONCAT('%',#{mobile,jdbcType=BIGINT},'%')
+    </if>
+    <if test="email != null" >
+      and email like CONCAT('%', #{email,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="isDisable != null" >
+      and is_disable = #{isDisable,jdbcType=BIT}
+    </if>
+    <if test="isFixed != null" >
+      and is_fixed = #{isFixed,jdbcType=BIT}
+    </if>
+  </select>
+</mapper>

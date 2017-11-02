@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.RightsOrdersLogsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.RightsOrdersLogs" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="logis_status" property="logisStatus" jdbcType="TINYINT" />
+    <result column="rights_order_id" property="rightsOrderId" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, logis_status, rights_order_id, created_at, status
+  </sql>
+  
+  <!-- 根据维权订单ID查询维权处理进度明细 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from rights_order_logs
+    where rights_order_id = #{rightsOrderId}
+  </select>
+  
+  <!--新增退款进度记录 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.RightsOrdersLogs" >
+    insert into rights_order_logs
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="logisStatus != null" >
+        logis_status,
+      </if>
+      <if test="rightsOrderId != null" >
+        rights_order_id,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="logisStatus != null" >
+        #{logisStatus,jdbcType=TINYINT},
+      </if>
+      <if test="rightsOrderId != null" >
+        #{rightsOrderId,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+</mapper>

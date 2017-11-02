@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.ShippingAddrsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.ShippingAddrs" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="shipping_name" property="shippingName" jdbcType="VARCHAR" />
+    <result column="shipping_province" property="pId" jdbcType="INTEGER" />
+    <result column="shipping_city" property="cId" jdbcType="INTEGER" />
+    <result column="shipping_district" property="dId" jdbcType="INTEGER" />
+    <result column="pName" property="pName" jdbcType="VARCHAR" />
+    <result column="cName" property="cName" jdbcType="VARCHAR" />
+    <result column="dName" property="dName" jdbcType="VARCHAR" />
+    <result column="shipping_address" property="shippingAddress" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="is_default" property="isDefault" jdbcType="BIT" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, shipping_name, shipping_province, shipping_city, shipping_district, shipping_address, 
+    mobile, user_id, is_default, created_at, updated_at, status
+  </sql>
+  
+  <!-- 查询默认地址信息 -->
+  <select id="queryAddrsByUserIdAndisDefault" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+        s.id, 
+        s.shipping_name, 
+        s.shipping_province, 
+        s.shipping_city, 
+        s.shipping_district, 
+        s.mobile, 
+        s.user_id, 
+        s.is_default, 
+        s.created_at, 
+        s.updated_at, 
+        s.status,
+        p.name pName,
+        c.name cName,
+        d.name dName,
+        s.shipping_address
+    from shipping_addrs s
+    left join area p on s.shipping_province = p.id and p.lv=1
+	left join area c on s.shipping_city = c.id and c.lv=2
+	left join area d on s.shipping_district = d.id and d.lv=3
+    where s.user_id=#{userId,jdbcType=VARCHAR}
+    AND s.is_default=1
+    AND s.status=1
+    limit 0,1
+  </select>
+  
+  <!-- 根据参数查询地址列表 -->
+  <select id="queryAddrsByConditions" parameterType="com.wmeimob.yzfs.vo.ShippingAddrsVO" resultType="com.wmeimob.yzfs.vo.ShippingAddrsVO">
+  	select  
+  		a.id id,
+  		a.user_id userId,
+  		a.shipping_name shippingName,
+  		a.mobile mobile, 
+  		p.name pName,
+  		p.id pId,
+  		c.name cName,
+  		c.id cId,
+  		d.name dName,
+  		d.id dId,
+  		a.shipping_address shippingAddress,
+  		a.is_default isDefault
+	from shipping_addrs a
+	left join area p on a.shipping_province = p.id and p.lv=1
+	left join area c on a.shipping_city = c.id and c.lv=2
+	left join area d on a.shipping_district = d.id and d.lv=3
+	where 1=1 
+	and a.status=1
+    <if test="userId != null and  userId !='' ">
+		and a.user_id = #{userId,jdbcType=VARCHAR}
+	</if>
+	<if test="id != null and id!='' ">
+		and a.id = #{id,jdbcType=VARCHAR}
+	</if>
+	order by a.is_default desc 
+  </select>
+  
+  
+  
+  <!-- 新增地址信息 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.ShippingAddrs" >
+    insert into shipping_addrs
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="shippingName != null" >
+        shipping_name,
+      </if>
+      <if test="pId != null" >
+        shipping_province,
+      </if>
+      <if test="cId != null" >
+        shipping_city,
+      </if>
+      <if test="dId != null" >
+        shipping_district,
+      </if>
+      <if test="shippingAddress != null" >
+        shipping_address,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="isDefault != null" >
+        is_default,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingName != null" >
+        #{shippingName,jdbcType=VARCHAR},
+      </if>
+      <if test="pId != null" >
+        #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="cId != null" >
+        #{cId,jdbcType=INTEGER},
+      </if>
+      <if test="dId != null" >
+        #{dId,jdbcType=INTEGER},
+      </if>
+      <if test="shippingAddress != null" >
+        #{shippingAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="isDefault != null" >
+        #{isDefault,jdbcType=BIT},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <!-- 根据ID修改地址信息 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.ShippingAddrs" >
+    update shipping_addrs
+    <set >
+      <if test="shippingName != null" >
+        shipping_name = #{shippingName,jdbcType=VARCHAR},
+      </if>
+      <if test="pId != null" >
+        shipping_province = #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="cId != null" >
+        shipping_city = #{cId,jdbcType=INTEGER},
+      </if>
+      <if test="dId != null" >
+        shipping_district = #{dId,jdbcType=INTEGER},
+      </if>
+      <if test="shippingAddress != null" >
+        shipping_address = #{shippingAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="isDefault != null" >
+        is_default = #{isDefault,jdbcType=BIT},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  
+    <!-- 将用户不在该ID参数下的地址设置为非默认地址 -->
+  <update id="updateAddressIsDefault" parameterType="com.wmeimob.yzfs.model.ShippingAddrs" >
+    update shipping_addrs set is_default=0
+    where id != #{id,jdbcType=VARCHAR}
+    and user_id = #{userId,jdbcType=VARCHAR}
+  </update>
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from shipping_addrs
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from shipping_addrs
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.wmeimob.yzfs.model.ShippingAddrs" >
+    insert into shipping_addrs (id, shipping_name, shipping_province, 
+      shipping_city, shipping_district, shipping_address, 
+      mobile, user_id, is_default, 
+      created_at, updated_at, status
+      )
+    values (#{id,jdbcType=VARCHAR}, #{shippingName,jdbcType=VARCHAR}, #{shippingProvince,jdbcType=INTEGER}, 
+      #{shippingCity,jdbcType=INTEGER}, #{shippingDistrict,jdbcType=INTEGER}, #{shippingAddress,jdbcType=VARCHAR}, 
+      #{mobile,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{isDefault,jdbcType=BIT}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{status,jdbcType=BIT}
+      )
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="com.wmeimob.yzfs.model.ShippingAddrs" >
+    update shipping_addrs
+    set shipping_name = #{shippingName,jdbcType=VARCHAR},
+      shipping_province = #{shippingProvince,jdbcType=INTEGER},
+      shipping_city = #{shippingCity,jdbcType=INTEGER},
+      shipping_district = #{shippingDistrict,jdbcType=INTEGER},
+      shipping_address = #{shippingAddress,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      is_default = #{isDefault,jdbcType=BIT},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=BIT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+</mapper>

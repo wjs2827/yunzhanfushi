@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.OrderItemsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.OrderItems" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="payType" property="payType" jdbcType="INTEGER" />
+    <result column="orderNo" property="orderNo" jdbcType="VARCHAR" />
+    <result column="orderId" property="orderId" jdbcType="VARCHAR" />
+    <result column="payNo" property="payNo" jdbcType="VARCHAR" />
+    <result column="userId" property="userId" jdbcType="VARCHAR" />
+    <result column="returnAmount" property="returnAmount" jdbcType="DECIMAL" />
+    <result column="container_type" property="containerType" jdbcType="BIT" />
+    <result column="container_id" property="containerId" jdbcType="VARCHAR" />
+    <result column="is_made" property="isMade" jdbcType="BIT" />
+    <result column="good_spec_id" property="goodSpecId" jdbcType="INTEGER" />
+    <result column="good_neck_id" property="goodNeckId" jdbcType="INTEGER" />
+    <result column="good_id" property="goodId" jdbcType="VARCHAR" />
+    <result column="good_name" property="goodName" jdbcType="VARCHAR" />
+    <result column="pic_key" property="picKey" jdbcType="VARCHAR" />
+    <result column="spu_code" property="spuCode" jdbcType="VARCHAR" />
+    <result column="sku_code" property="skuCode" jdbcType="VARCHAR" />
+    <result column="stock_count" property="stockCount" jdbcType="INTEGER" />
+    <result column="order_item_sku_name" property="skuProperties" jdbcType="VARCHAR" />
+    <result column="sale_price" property="salePrice" jdbcType="DECIMAL" />
+    <result column="fare_price" property="farePrice" jdbcType="DECIMAL" />
+    <result column="sale_points" property="salePoint" jdbcType="INTEGER" />
+    <result column="shipping_fee" property="shippingFee" jdbcType="DECIMAL" />
+    <result column="quantity" property="quantity" jdbcType="INTEGER" />
+    <result column="refunds_status" property="refundsStatus" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+    id, container_type, container_id, good_id,is_made, good_spec_id,good_neck_id, sale_price,fare_price, sale_points,
+    quantity, shipping_fee, commission, get_points, created_at, updated_at, status
+  </sql>
+  
+  <!-- WX根据商品详情ID查询购物车商品 -->
+  <select id="selectOrderItemByIdFromWX" parameterType="com.wmeimob.yzfs.model.OrderItems"
+            resultMap="BaseResultMap">
+		select 
+		    oi.id, 
+		    oi.container_type, 
+		    oi.container_id, 
+		    oi.good_id,
+		    oi.is_made, 
+		    oi.good_spec_id,
+		    oi.good_neck_id, 
+		    oi.sale_price,
+		    oi.fare_price, 
+		    oi.sale_points,
+		    oi.quantity, 
+		    oi.shipping_fee, 
+		    oi.commission, 
+		    oi.get_points,
+		    ois.sku_code,
+		    egs.stock_count
+		from order_items oi
+	    left join order_item_sku ois on oi.good_spec_id=ois.id
+	    left join ec_good_sku egs on egs.sku_code=ois.sku_code
+		where 1=1
+	    and oi.status =1
+	    and oi.container_type=1
+	    and oi.id = #{id,jdbcType=VARCHAR}
+	    limit 0,1
+    </select>
+    
+    <!-- WX根据购物车ID查询购物车当前数量 -->
+    <select id="queryCartNumber" parameterType="java.lang.String"
+            resultMap="BaseResultMap">
+		select 
+		    oi.id
+		from order_items oi
+		where 1=1
+	    and oi.status =1
+	    and oi.container_type=1
+	    and oi.container_id = #{cartId}
+    </select>
+    
+    <!-- 根据订单ID查询订单明细信息 -->
+    <select id="selectOrderItemsById" parameterType="java.lang.String"
+            resultType="com.wmeimob.yzfs.model.OrderItems">
+		select
+			oi.id,
+			o.id orderId,
+		    o.order_no orderNo,
+		    o.owner_id userId,
+		    o.pay_no payNo,
+		    o.pay_type payType, 
+			oi.container_id containerId,
+            oi.is_made isMade,
+			ifnull(oi.quantity,0) quantity,
+		    ifnull(oi.sale_price,0) salePrice,
+		    ifnull(oi.fare_price,0) farePrice,
+		    ifnull(ifnull(oi.quantity,0)*ifnull(oi.sale_price,0)+ifnull(oi.fare_price,0),0) returnAmount,
+		    ifnull(oi.refunds_status,0) refundsStatus,
+			eg.name goodName,
+			eg.spu_code spuCode,
+	        s.order_item_sku_name  skuProperties,
+	        s.pic_key picKey,
+	        n.order_item_sku_name neckProperties,
+	        n.pic_key neckPickey
+		from
+		order_items oi
+		left join orders o on o.id=oi.container_id
+        left join order_item_sku  s on oi.good_spec_id=s.id
+        left join order_item_sku  n on oi.good_neck_id=n.id
+		left join ec_goods eg on eg.id = oi.good_id
+		where 1=1
+	    and oi.status =1
+	    and oi.container_type=0
+        and oi.id = #{id}
+    </select>
+  
+  <!-- 根据订单ID查询订单明细信息 -->
+  <select id="selectOrderItemsByContainerId" parameterType="com.wmeimob.yzfs.model.OrderItems"
+            resultType="com.wmeimob.yzfs.model.OrderItems">
+		select
+			oi.id,
+			oi.container_id containerId,
+            oi.is_made isMade,
+			ifnull(oi.quantity,0) quantity,
+		    ifnull(oi.sale_price,0) salePrice,
+		    ifnull(oi.fare_price,0) farePrice,
+		    ifnull(oi.refunds_status,0) refundsStatus,
+			eg.name goodName,
+			eg.spu_code spuCode,
+	        s.order_item_sku_name  skuProperties,
+	        s.pic_key picKey,
+	        n.order_item_sku_name neckProperties,
+	        n.pic_key neckPickey
+		from
+		order_items oi
+        left join order_item_sku  s on oi.good_spec_id=s.id
+        left join order_item_sku  n on oi.good_neck_id=n.id
+		left join ec_goods eg on eg.id = oi.good_id
+		where 1=1
+	    and oi.status =1
+	    and oi.container_type=0
+        and oi.container_id = #{containerId}
+    </select>
+    
+  <!-- OrderItems的属性查询 -->
+  <!-- WX根据购物车ID和商品ID以及SKU编码查询该商品是否存在购物车中 -->
+  <select id="selectByOrderItemsByGoodId" parameterType="com.wmeimob.yzfs.model.OrderItems"
+            resultType="com.wmeimob.yzfs.model.OrderItems">
+		select
+			oi.id,
+			oi.container_id containerId,
+            oi.is_made isMade,
+            oi.good_spec_id goodSpecId,
+            oi.good_neck_id goodNeckId,
+			ifnull(oi.quantity,0) quantity,
+		    ifnull(oi.sale_price,0) salePrice,
+		    ifnull(oi.fare_price,0) farePrice,
+		    ifnull(oi.refunds_status,0) refundsStatus,
+		    eg.id goodId,
+			eg.name goodName,
+			eg.spu_code spuCode,
+	        s.order_item_sku_name  skuProperties,
+	        s.pic_key picKey,
+	        n.order_item_sku_name neckProperties,
+	        n.pic_key neckPickey
+		from
+		order_items oi
+        left join order_item_sku  s on oi.good_spec_id=s.id
+        left join order_item_sku  n on oi.good_neck_id=n.id
+		left join ec_goods eg on eg.id = oi.good_id
+		where 1=1
+	    and oi.status =1
+	    and oi.container_type=1
+        and oi.container_id = #{containerId}
+        and eg.id = #{goodId}
+        <if test="skuCode != null and skuCode!='' ">
+         and s.sku_code= #{skuCode}
+        </if>
+        <if test="neckSkuCode != null and  neckSkuCode !=''">
+         and n.sku_code= #{neckSkuCode}
+        </if>
+         and oi.is_made= #{isMade}
+        limit 0,1
+    </select> 
+    
+    
+  <!-- WX根据购物车ID查询购物车列表 -->
+  <select id="selectCartListByCartIdFromWX" parameterType="java.lang.String"
+            resultType="com.wmeimob.yzfs.model.OrderItems">
+		select
+			oi.id,
+			oi.container_id containerId,
+            oi.is_made isMade,
+			ifnull(oi.quantity,0) quantity,
+		    ifnull(oi.sale_price,0) salePrice,
+		    ifnull(oi.fare_price,0) farePrice,
+		    ifnull(oi.refunds_status,0) refundsStatus,
+		    eg.id goodId,
+			eg.name goodName,
+			eg.spu_code spuCode,
+			s.sku_code skuCode,
+	        s.order_item_sku_name  skuProperties,
+	        s.pic_key picKey,
+	        n.order_item_sku_name neckProperties,
+	        n.pic_key neckPickey
+		from
+		order_items oi
+        left join order_item_sku  s on oi.good_spec_id=s.id
+        left join order_item_sku  n on oi.good_neck_id=n.id
+		left join ec_goods eg on eg.id = oi.good_id
+		where 1=1
+	    and oi.status =1
+	    and oi.container_type=1
+        and oi.container_id = #{containerId}
+    </select>
+    
+      <!-- WX根据订单ID查询订单详情列表 -->
+    <select id="selectCartListByOrderIdFromWX" parameterType="com.wmeimob.yzfs.model.OrderItems"
+            resultType="com.wmeimob.yzfs.model.OrderItems">
+		select
+			oi.id,
+			oi.container_id containerId,
+            oi.is_made isMade,
+			ifnull(oi.quantity,0) quantity,
+		    ifnull(oi.sale_price,0) salePrice,
+		    ifnull(oi.fare_price,0) farePrice,
+		    ifnull(oi.refunds_status,0) refundsStatus,
+		    eg.id goodId,
+			eg.name goodName,
+			eg.spu_code spuCode,
+			s.sku_code skuCode,
+	        s.order_item_sku_name  skuProperties,
+	        s.pic_key picKey,
+	        n.order_item_sku_name neckProperties,
+	        n.pic_key neckPickey
+		from
+		order_items oi
+        left join order_item_sku  s on oi.good_spec_id=s.id
+        left join order_item_sku  n on oi.good_neck_id=n.id
+		left join ec_goods eg on eg.id = oi.good_id
+		where 1=1
+	    and oi.status =1
+	    and oi.container_type=0
+        and oi.container_id = #{containerId}
+    </select>
+    
+  
+  <!-- 新增订单详情 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.OrderItems" >
+    insert into order_items
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="containerType != null" >
+        container_type,
+      </if>
+      <if test="containerId != null" >
+        container_id,
+      </if>
+      <if test="goodId != null" >
+        good_id,
+      </if>
+      <if test="isMade != null" >
+        is_made,
+      </if>
+      <if test="goodSpecId != null" >
+        good_spec_id,
+      </if>
+      <if test="goodNeckId != null" >
+        good_neck_id,
+      </if>
+      <if test="salePrice != null" >
+        sale_price,
+      </if>
+      <if test="farePrice != null" >
+        fare_price,
+      </if>
+      <if test="salePoint != null" >
+        sale_points,
+      </if>
+      <if test="quantity != null" >
+        quantity,
+      </if>
+      <if test="shippingFee != null" >
+        shipping_fee,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="containerType != null" >
+        #{containerType,jdbcType=BIT},
+      </if>
+      <if test="containerId != null" >
+        #{containerId,jdbcType=VARCHAR},
+      </if>
+      <if test="goodId != null" >
+        #{goodId,jdbcType=VARCHAR},
+      </if>
+      <if test="isMade != null" >
+         #{isMade,jdbcType=BIT},
+      </if>
+      <if test="goodSpecId != null" >
+        #{goodSpecId,jdbcType=INTEGER},
+      </if>
+      <if test="goodNeckId != null" >
+        #{goodNeckId,jdbcType=INTEGER},
+      </if>
+      <if test="salePrice != null" >
+        #{salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="farePrice != null" >
+        #{farePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="salePoint != null" >
+        #{salePoint,jdbcType=INTEGER},
+      </if>
+      <if test="quantity != null" >
+        #{quantity,jdbcType=INTEGER},
+      </if>
+      <if test="shippingFee != null" >
+        #{shippingFee,jdbcType=DECIMAL},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+    <!-- 修改订单详情 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.OrderItems" >
+    update order_items
+    <set >
+      <if test="containerType != null" >
+        container_type = #{containerType,jdbcType=BIT},
+      </if>
+      <if test="containerId != null" >
+        container_id = #{containerId,jdbcType=VARCHAR},
+      </if>
+      <if test="goodId != null" >
+        good_id = #{goodId,jdbcType=VARCHAR},
+      </if>
+      <if test="salePoint != null" >
+        sale_points = #{salePoint,jdbcType=INTEGER},
+      </if>
+      <if test="salePrice != null" >
+        sale_price=#{salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="farePrice != null" >
+        fare_price=#{farePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="quantity != null" >
+        quantity = #{quantity,jdbcType=INTEGER},
+      </if>
+      <if test="shippingFee != null" >
+        shipping_fee = #{shippingFee,jdbcType=DECIMAL},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="refundsStatus != null" >
+        refunds_status = #{refundsStatus,jdbcType=BIT},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  
+  <insert id="insertSelectiveByList" parameterType="java.util.List" >
+      insert into order_items 
+      (
+	      id, 
+	      container_type, 
+	      container_id, 
+	      good_id, 
+	      quantity, 
+	      created_at, 
+	      updated_at, 
+	      status
+      )
+      values 
+      <foreach collection="list" item="item" index="index"  
+        open="" separator="," close="">  
+        (
+          #{item.id,jdbcType=VARCHAR}, #{item.containerType,jdbcType=BIT}, #{item.containerId,jdbcType=VARCHAR}, 
+          #{item.goodId,jdbcType=VARCHAR},  #{item.quantity,jdbcType=INTEGER}, 
+          #{item.createdAt,jdbcType=TIMESTAMP}, #{item.updatedAt,jdbcType=TIMESTAMP}, 
+          #{item.status,jdbcType=BIT}
+        )
+      </foreach>  
+  </insert>
+  <!-- WX根据购物车ID和商品ID查询该商品是否存在购物车中 -->
+  <select id="queryCartGoodListByIdList" parameterType="java.util.List"
+            resultType="com.wmeimob.yzfs.model.OrderItems">
+		select
+			oi.id,
+			oi.container_id containerId,
+            oi.is_made isMade,
+            oi.good_spec_id goodSpecId,
+            oi.good_neck_id goodNeckId,
+			ifnull(oi.quantity,0) quantity,
+		    ifnull(oi.sale_price,0) salePrice,
+		    ifnull(oi.fare_price,0) farePrice,
+		    ifnull(oi.refunds_status,0) refundsStatus,
+			eg.name goodName,
+			eg.spu_code spuCode,
+			s.sku_code skuCode,
+			s.spu_id goodId,
+	        s.order_item_sku_name  skuProperties,
+	        s.pic_key picKey,
+	        n.sku_code neckSkuCode,
+	        n.order_item_sku_name neckProperties
+		from
+		order_items oi
+        left join order_item_sku  s on oi.good_spec_id=s.id
+        left join order_item_sku  n on oi.good_neck_id=n.id
+		left join ec_goods eg on eg.id = oi.good_id
+		where 1=1
+		and oi.container_type=1
+	    and oi.status =1
+	    and oi.id in 
+	    <foreach collection="list" item = "item" open="(" separator="," close=")">
+	        #{item}  
+        </foreach>  
+    </select> 
+  
+  <!-- 根据选中的购物车ID删除购物车列表 -->
+  <update id="deleteCartByItemId" parameterType="java.util.List" >
+     delete from order_items 
+     where id in 
+    <foreach collection="list" item = "item" open="(" separator="," close=")">
+     #{item}  
+    </foreach>  
+  </update>
+  
+  <!-- 根据选中的购物车ID删除购物车列表 -->
+  <update id="updateCartToOrderItemByListId" parameterType="Map" >
+     update order_items  set container_type=0,container_id=#{containerId}
+     where id in 
+    <foreach collection="list" item = "item" open="(" separator="," close=")">
+     #{item}  
+    </foreach>  
+  </update>
+  
+  
+</mapper>

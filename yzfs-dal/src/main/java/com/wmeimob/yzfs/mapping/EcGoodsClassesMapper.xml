@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.EcGoodsClassesMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.GoodsClass" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="pic_key" property="picKey" jdbcType="VARCHAR" />
+    <result column="rank" property="rank" jdbcType="INTEGER" />
+    <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+    <result column="count(*)" property="totalCount" jdbcType="INTEGER"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, name, pic_key, rank, parent_id, created_at, updated_at, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from ec_goods_classes
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from ec_goods_classes
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.wmeimob.yzfs.model.GoodsClass" >
+    insert into ec_goods_classes (id, name, pic_key, 
+      rank, parent_id, created_at, status)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{picKey,jdbcType=VARCHAR}, 
+      #{rank,jdbcType=INTEGER}, #{parentId,jdbcType=VARCHAR}, sysdate(), #{status,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.GoodsClass" >
+    insert into ec_goods_classes
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="picKey != null" >
+        pic_key,
+      </if>
+      <if test="rank != null" >
+        rank,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="picKey != null" >
+        #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="rank != null" >
+        #{rank,jdbcType=INTEGER},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.GoodsClass" >
+    update ec_goods_classes
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="picKey != null" >
+        pic_key = #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="rank != null" >
+        rank = #{rank,jdbcType=INTEGER},
+      </if>
+      <if test="parentId != null" >
+        parent_id = #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+         status =#{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wmeimob.yzfs.model.GoodsClass" >
+    update ec_goods_classes
+    set name = #{name,jdbcType=VARCHAR},
+      pic_key = #{picKey,jdbcType=VARCHAR},
+      rank = #{rank,jdbcType=INTEGER},
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=BIT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+  <select id="queryGoodsClassList" parameterType="com.wmeimob.yzfs.model.GoodsClass"  resultType="com.wmeimob.yzfs.vo.GoodsClassVO">
+    SELECT
+        c.id id,
+        c. NAME name,
+        c.pic_key picKey,
+        c.parent_id parentId,
+        (select c1.name from ec_goods_classes c1 where c1.id = c.parent_id) parentName
+    FROM
+        ec_goods_classes c
+    WHERE 1 = 1
+    <if test="id != null">
+      AND c.id = #{id,jdbcType=VARCHAR}
+    </if>
+    <if test="name != null">
+      AND c.name LIKE CONCAT('%',#{name},'%')
+    </if>
+    <if test="status != null">
+      AND c.status = #{status,jdbcType=BIT}
+    </if>
+    <if test="status == null">
+      AND c.status = 1
+    </if>
+    <if test="judge != null">
+      AND (c.parent_id ='' OR c.parent_id IS NULL)
+    </if>
+    <if test="parentId != null">
+      AND c.parent_id = #{parentId,jdbcType=VARCHAR}
+    </if>
+     order by c.rank asc
+     <if test="pageSize != null and pageSize !=-1">
+      LIMIT #{pageIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+     </if>
+  </select>
+  
+   <select id="queryGoodsCount" resultMap="BaseResultMap" >
+    SELECT
+      count(c.id) totalCount
+    FROM
+        ec_goods_classes c
+    WHERE 1 = 1
+    <if test="id != null">
+      AND c.id = #{id,jdbcType=VARCHAR}
+    </if>
+    <if test="name != null">
+      AND c.name LIKE CONCAT('%',#{name},'%')
+    </if>
+    <if test="status != null">
+      AND c.status = #{status,jdbcType=BIT}
+    </if>
+    <if test="status == null">
+      AND c.status = 1
+    </if>
+    <if test="judge != null">
+      AND (c.parent_id ='' OR c.parent_id IS NULL)
+    </if>
+    <if test="parentId != null">
+      AND c.parent_id = #{parentId,jdbcType=VARCHAR}
+    </if>
+  </select>
+  
+  
+   <!-- 查询所有的子分类 -->
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from ec_goods_classes
+    where status=1 AND  parent_id is not null  and parent_id !=''
+  </select>
+
+  <!-- 查询所有一级分类 -->
+  <select id="selectFirstClass" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from ec_goods_classes
+    where status=1 
+    AND  parent_id is null or parent_id =''
+  </select>
+   <!-- 查询所有二级级分类 -->
+  <select id="queryErjilist" resultType="com.wmeimob.yzfs.vo.GoodsClassVO">
+    select 
+        c.id id,
+        c. NAME name,
+        c.pic_key picKey,
+        c.parent_id parentId
+     from
+     ec_goods_classes c 
+     where c.status=1 
+     and c.parent_id is not null
+     and c.parent_id !=''
+     <if test="id !=null and id !='' ">
+        and  c.parent_id=#{id} 
+     </if>
+  </select>
+  
+  <!-- 根据ID查询分类 -->
+  <select id="queryErjilistById" resultType="com.wmeimob.yzfs.vo.GoodsClassVO">
+    select 
+        c.id id,
+        c. NAME name,
+        c.pic_key picKey,
+        c.parent_id parentId
+     from
+     ec_goods_classes c 
+     where c.status=1 
+     <if test="id!=null">
+         and  c.id=#{id} 
+     </if>
+  </select>
+  
+  
+  <!-- 微信开始  -->
+  <!-- 微信首页查询商品一级分类以及二级分类列表 -->
+  <resultMap id="WXBaseResultMap" type="com.wmeimob.yzfs.model.GoodsClass" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="pic_key" property="picKey" jdbcType="VARCHAR" />
+    <result column="rank" property="rank" jdbcType="INTEGER" />
+    <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+    <!-- 查询评论下的图片 -->
+    <collection property="secondCategoryList" javaType="ArrayList" ofType="com.wmeimob.yzfs.model.GoodsClass"
+            select="queryErjilist"  column="{id=id}"/>
+  </resultMap>
+  
+    <!-- 根据条件查询商品一级和二级分类列表-->
+  <select id="queryCategoryListFromWX" resultMap="WXBaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from ec_goods_classes
+    where status=1 
+    AND  parent_id is null or parent_id =''
+  </select>
+  
+  
+</mapper>

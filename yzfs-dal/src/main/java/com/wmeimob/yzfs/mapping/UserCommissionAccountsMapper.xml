@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.UserCommissionAccountsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.UserCommissionAccounts" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="amount" property="amount" jdbcType="DECIMAL" />
+    <result column="withdraw_amount" property="withdrawAmount" jdbcType="DECIMAL" />
+    <result column="history_amount" property="historyAmount" jdbcType="DECIMAL" />
+    <result column="bind_open_id" property="bindOpenId" jdbcType="VARCHAR" />
+    <result column="bind_wx_nickname" property="bindWxNickname" jdbcType="VARCHAR" />
+    <result column="bind_wx_headimg" property="bindWxHeadimg" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, amount, withdraw_amount, history_amount, bind_open_id, bind_wx_nickname, 
+    bind_wx_headimg, created_at, updated_at, status
+  </sql>
+  
+  <!-- 根据参数查询用户信息-->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.wmeimob.yzfs.model.UserCommissionAccounts" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_commission_accounts
+    <where>
+      status=1
+      <if test="id !=null and id!=''">
+        and id = #{id,jdbcType=INTEGER}
+      </if>
+      <if test="userId !=null and userId!='' ">
+        and user_id = #{userId,jdbcType=INTEGER}
+      </if>
+    </where>
+    limit 0,1
+  </select>
+  
+  <!-- 新增佣金账户信息 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.UserCommissionAccounts" >
+    insert into user_commission_accounts
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="amount != null" >
+        amount,
+      </if>
+      <if test="withdrawAmount != null" >
+        withdraw_amount,
+      </if>
+      <if test="historyAmount != null" >
+        history_amount,
+      </if>
+      <if test="bindOpenId != null" >
+        bind_open_id,
+      </if>
+      <if test="bindWxNickname != null" >
+        bind_wx_nickname,
+      </if>
+      <if test="bindWxHeadimg != null" >
+        bind_wx_headimg,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="withdrawAmount != null" >
+        #{withdrawAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="historyAmount != null" >
+        #{historyAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="bindOpenId != null" >
+        #{bindOpenId,jdbcType=VARCHAR},
+      </if>
+      <if test="bindWxNickname != null" >
+        #{bindWxNickname,jdbcType=VARCHAR},
+      </if>
+      <if test="bindWxHeadimg != null" >
+        #{bindWxHeadimg,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 修改用户佣金账户信息 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.UserCommissionAccounts" >
+    update user_commission_accounts
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null" >
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="withdrawAmount != null" >
+        withdraw_amount = #{withdrawAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="historyAmount != null" >
+        history_amount = #{historyAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="bindOpenId != null" >
+        bind_open_id = #{bindOpenId,jdbcType=VARCHAR},
+      </if>
+      <if test="bindWxNickname != null" >
+        bind_wx_nickname = #{bindWxNickname,jdbcType=VARCHAR},
+      </if>
+      <if test="bindWxHeadimg != null" >
+        bind_wx_headimg = #{bindWxHeadimg,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 根据参数查询用户信息-->
+  <select id="queryCommissionByUserId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+	select 
+		ua.amount,
+		(
+		select sum(ucal.change_amount)  from user_commission_account_logs ucal 
+		where status=1 
+		and ucal.user_account_id=ua.id
+		and date_format(ucal.created_at,'%Y-%m-%d')=date_format(now(),'%Y-%m-%d')
+		and ucal.record_type=1
+		) todayAmount,
+		(
+		select sum(ucal.change_amount)  from user_commission_account_logs ucal 
+		where status=1 
+		and ucal.user_account_id=ua.id
+		and ucal.record_type=1
+		) historyAmount
+	from user_commission_accounts ua
+	where 1=1
+	and ua.status=1
+	and ua.user_id=#{userId}
+    limit 0,1
+  </select>
+  
+</mapper>

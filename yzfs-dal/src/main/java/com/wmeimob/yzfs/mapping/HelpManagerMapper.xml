@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.HelpManagerMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.HelpManager" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.wmeimob.yzfs.model.HelpManager" extends="BaseResultMap" >
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Blob_Column_List" >
+    content
+  </sql>
+  
+  <!-- Admin查询帮助或者推广页信息 -->
+  <select id="queryHelpList" parameterType="com.wmeimob.yzfs.model.HelpManager" resultType="com.wmeimob.yzfs.vo.HelpManagerVO">
+		select 
+			id,
+			type,
+			title,
+			content
+		from help_manager
+        where status = 1
+        <if test="type != null">
+            and type =#{type,jdbcType=INTEGER}
+        </if>
+    </select>
+  
+  <!-- 新增 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.HelpManager" >
+    insert into help_manager
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+   <!-- 修改帮助或者推广页内容信息-->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.HelpManager" >
+    update help_manager
+    <set >
+      <if test="type != null" >
+        type=#{type,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        title=#{title,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        created_at=#{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at=#{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status=#{status,jdbcType=BIT},
+      </if>
+      <if test="content != null" >
+        content=#{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

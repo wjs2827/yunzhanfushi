@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.UserAccountLogsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.UserAccountLogs" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="user_account_id" property="userAccountId" jdbcType="VARCHAR" />
+    <result column="record_type" property="recordType" jdbcType="TINYINT" />
+    <result column="change_type" property="changeType" jdbcType="VARCHAR" />
+    <result column="order_id" property="orderId" jdbcType="VARCHAR" />
+    <result column="change_note" property="changeNote" jdbcType="VARCHAR" />
+    <result column="changed_at" property="changedAt" jdbcType="TIMESTAMP" />
+    <result column="change_amount" property="changeAmount" jdbcType="DECIMAL" />
+    <result column="recharge_package_name" property="rechargePackageName" jdbcType="VARCHAR" />
+    <result column="promoter_code" property="promoterCode" jdbcType="VARCHAR" />
+    <result column="account_amount" property="accountAmount" jdbcType="DECIMAL" />
+    <result column="attach_amount" property="attachAmount" jdbcType="DECIMAL" />
+    <result column="from_user_id" property="fromUserId" jdbcType="VARCHAR" />
+    <result column="pay_type" property="payType" jdbcType="TINYINT" />
+    <result column="pay_at" property="payAt" jdbcType="TIMESTAMP" />
+    <result column="pay_amount" property="payAmount" jdbcType="DECIMAL" />
+    <result column="pay_no" property="payNo" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_account_id, record_type, change_type, order_id, change_note, changed_at, 
+    change_amount, recharge_package_name, promoter_code, account_amount, attach_amount, 
+    from_user_id, pay_type, pay_at, pay_amount, pay_no, created_at, updated_at, status
+  </sql>
+  
+  <!-- 根据充值流水号查询充值日志记录 -->
+   <select id="queryAccountLogByPayNo" resultMap="BaseResultMap" parameterType="java.lang.String" >
+   select 
+   <include refid="Base_Column_List"></include>
+   from user_account_logs
+   where 1=1
+   and status=1
+   and pay_no=#{payNo}
+   </select>
+  
+  <!--根据ID变更充值日志信息 -->
+   <update id="updateAccountById" parameterType="java.lang.String">
+   update user_account_logs set status=1 where 1=1
+   and id=#{id}
+   </update>
+   
+  <!-- 充值记录信息 -->
+  <select id="selectByPrimaryKey" resultType="com.wmeimob.yzfs.vo.UserAccountLogsVO" parameterType="com.wmeimob.yzfs.vo.UserAccountLogsVO" >
+	select 
+		u.id userId,
+		u.nick_name nickName,
+		u.mobile,
+		ucl.record_type recordType,
+	    ucl.change_type changeType,
+		ucl.change_amount changeAmount,
+	    ucl.attach_amount attachAmount,
+	    ucl.pay_no payNo,
+		ucl.change_note changeNote,
+		ucl.account_amount accountAmount,
+		ucl.updated_at updatedAt 
+	from user_account_logs ucl
+	left join user_accounts ua on  ucl.user_account_id=ua.id
+	left join users u on ua.user_id=u.id
+    <where>
+	  ucl.status=1
+	  and ua.status=1
+	  and u.status=1
+	  <if test="changeType != null and changeType != ''">
+        and ucl.change_type=#{changeType}
+      </if>
+      <if test="startTime != null and startTime != ''">
+        and date_format(ucl.updated_at,'%Y-%m-%d') &gt;= #{startTime}
+      </if>
+      <if test="endTime != null and endTime != '' ">
+        and date_format(ucl.updated_at,'%Y-%m-%d') &lt;= #{endTime}
+      </if>
+      <if test="nickName != null and nickName != '' ">
+        and (u.nick_name like '%${nickName}%'
+        or u.mobile like '%${nickName}%')
+      </if>
+	</where>
+  </select>
+  
+  <!--WX充值记录信息记录 -->
+  <select id="queryBalanceListByParams" resultType="com.wmeimob.yzfs.vo.UserAccountLogsVO" parameterType="com.wmeimob.yzfs.vo.UserAccountLogsVO" >
+	select 
+		ua.id,
+		ucl.record_type recordType,
+	    ucl.change_type changeType,
+		ucl.change_amount changeAmount,
+	    ucl.attach_amount attachAmount,
+	    ucl.pay_amount payAmount,
+	    ucl.pay_no payNo,
+		ucl.change_note changeNote,
+		ucl.account_amount accountAmount,
+		date_format(ucl.created_at,'%Y-%m-%d %T') createdTime,
+		ucl.updated_at updatedAt 
+	from user_account_logs ucl
+	left join user_accounts ua on  ucl.user_account_id=ua.id
+    <where>
+	  ucl.status=1
+	  and ua.status=1
+	  and ua.user_id=#{userId}
+	</where>
+  </select>
+  
+  <!-- 新增余额日志记录表 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.UserAccountLogs" >
+    insert into user_account_logs
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userAccountId != null" >
+        user_account_id,
+      </if>
+      <if test="recordType != null" >
+        record_type,
+      </if>
+      <if test="changeType != null" >
+        change_type,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="changeNote != null" >
+        change_note,
+      </if>
+      <if test="changedAt != null" >
+        changed_at,
+      </if>
+      <if test="changeAmount != null" >
+        change_amount,
+      </if>
+      <if test="rechargePackageName != null" >
+        recharge_package_name,
+      </if>
+      <if test="promoterCode != null" >
+        promoter_code,
+      </if>
+      <if test="accountAmount != null" >
+        account_amount,
+      </if>
+      <if test="attachAmount != null" >
+        attach_amount,
+      </if>
+      <if test="fromUserId != null" >
+        from_user_id,
+      </if>
+      <if test="payType != null" >
+        pay_type,
+      </if>
+      <if test="payAt != null" >
+        pay_at,
+      </if>
+      <if test="payAmount != null" >
+        pay_amount,
+      </if>
+      <if test="payNo != null" >
+        pay_no,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="userAccountId != null" >
+        #{userAccountId,jdbcType=VARCHAR},
+      </if>
+      <if test="recordType != null" >
+        #{recordType,jdbcType=TINYINT},
+      </if>
+      <if test="changeType != null" >
+        #{changeType,jdbcType=VARCHAR},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="changeNote != null" >
+        #{changeNote,jdbcType=VARCHAR},
+      </if>
+      <if test="changedAt != null" >
+        #{changedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="changeAmount != null" >
+        #{changeAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="rechargePackageName != null" >
+        #{rechargePackageName,jdbcType=VARCHAR},
+      </if>
+      <if test="promoterCode != null" >
+        #{promoterCode,jdbcType=VARCHAR},
+      </if>
+      <if test="accountAmount != null" >
+        #{accountAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="attachAmount != null" >
+        #{attachAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="fromUserId != null" >
+        #{fromUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="payType != null" >
+        #{payType,jdbcType=TINYINT},
+      </if>
+      <if test="payAt != null" >
+        #{payAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payAmount != null" >
+        #{payAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="payNo != null" >
+        #{payNo,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+</mapper>

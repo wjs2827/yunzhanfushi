@@ -1,0 +1,908 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.GoodsMapper">
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.Goods" >
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <id column="classes_id" jdbcType="VARCHAR" property="classesId" />
+    <result column="rank" jdbcType="INTEGER" property="rank" />
+    <result column="spu_code" jdbcType="VARCHAR" property="spuCode" />
+    <result column="shop_id" jdbcType="VARCHAR" property="shopId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="spu_type" jdbcType="BIT" property="spuType" />
+    <result column="is_unified_specs" jdbcType="BIT" property="isUnifiedSpecs" />
+    <result column="sale_count" jdbcType="INTEGER" property="saleCount" />
+    <result column="is_sale" jdbcType="BIT" property="isSale" />
+    <result column="weight" jdbcType="DECIMAL" property="weight" />
+    <result column="customize_stock_count" jdbcType="INTEGER" property="customizeStockCount" />
+    <result column="spu_keys" jdbcType="VARCHAR" property="spuKeysValue" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="status" jdbcType="BIT" property="status" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.wmeimob.yzfs.model.Goods">
+    <result column="descriptions" jdbcType="LONGVARCHAR" property="descriptions" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, classes_id, rank, spu_code,shop_id, name, spu_type,is_unified_specs, is_sale, weight,
+    sale_count, customize_stock_count, spu_keys, created_at, updated_at, status
+  </sql>
+  <sql id="Blob_Column_List">
+    descriptions
+  </sql>
+  
+  <!-- WX查询商品是否存在-->
+  <select id="queryGoodExistById"  resultType="com.wmeimob.yzfs.model.Goods">
+        select
+	        g.id id,
+	        g.spu_code spuCode
+        from ec_goods g
+        <where>
+        g.status=1
+        and g.id =#{id}
+        </where>
+   </select>
+  
+  
+  <!-- Admin根据商品编码查询商品是否存在-->
+  <select id="queryGoodsListBySpuCodeVerifyExist" parameterType="com.wmeimob.yzfs.model.Goods" resultType="com.wmeimob.yzfs.vo.GoodsVO">
+        select
+	        g.id id
+        from ec_goods g
+        <where>
+        g.status=1
+        <if test="spuCode != null and spuCode !='' ">
+            and g.spu_code =#{spuCode,jdbcType=VARCHAR}
+        </if>
+        <if test="id != null and id !='' ">
+            and g.id !=#{id,jdbcType=VARCHAR}
+        </if>
+        </where>
+   </select>
+  
+   <!-- Admin查询商品列表标准版 -->
+    <select id="queryGoodsList" parameterType="com.wmeimob.yzfs.model.Goods" resultType="com.wmeimob.yzfs.vo.GoodsVO">
+        select 
+	        g.id id,
+	        g.spu_code spuCode,
+	        g.name name,
+	        g.is_sale isSale,
+	        g.classes_id classesId,
+	        date_format(g.updated_at,'%Y-%m-%d %T') updatedAt,
+	        c.name classesName,
+	        c1.name parentName,
+	        c1.id parentId,
+	        g.is_unified_specs unifiedSpecs,
+	        g.customize_stock_count customizeStockCount,
+	        g.rank,
+	        (
+             select ifnull(ifnull(sum(egs.stock_count),0)-ifnull(ifnull(sum(egs.lock_count),0)+ifnull(sum(egs.sale_count),0),0),0) from ec_good_sku egs
+             where 1=1
+             and g.id=egs.spu_id
+             ) stockCount,
+	        (
+	           select ifnull(sum(egs.sale_count),0) from ec_good_sku egs
+	           where 1=1
+	           and g.id=egs.spu_id
+	         ) saleCount
+        from ec_goods g
+        left join ec_goods_classes c on c.id = g.classes_id
+        left join ec_goods_classes c1 on c1.id=c.parent_id
+        where g.status = 1
+        <if test="name != null">
+            and g.name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="name != null">
+            and g.name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="isSale !=null">
+            and g.is_sale = #{isSale,jdbcType=TINYINT}
+        </if>
+        <if test="classesId !=null and classesId !=''">
+            and g.classes_id = #{classesId,jdbcType=VARCHAR}
+        </if>
+        order by g.updated_at desc,g.rank desc
+    </select>
+
+
+  
+  <!-- Admin新增商品信息 -->
+<insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.Goods">
+    insert into ec_goods
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="classesId != null">
+        classes_id,
+      </if>
+      <if test="rank != null">
+        rank,
+      </if>
+      <if test="spuCode != null">
+        spu_code,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="spuType != null">
+        spu_type,
+      </if>
+      <if test="isUnifiedSpecs != null">
+        is_unified_specs,
+      </if>
+      <if test="isSale != null">
+        is_sale,
+      </if>
+      <if test="saleCount != null">
+        sale_count,
+      </if>
+      <if test="weight != null">
+        weight,
+      </if>
+      <if test="customizeStockCount != null">
+        customize_stock_count,
+      </if>
+      <if test="spuKeysValue != null">
+        spu_keys,
+      </if>
+      <if test="createdAt != null">
+        created_at,
+      </if>
+      <if test="updatedAt != null">
+        updated_at,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="descriptions != null">
+        descriptions,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="classesId != null">
+        #{classesId,jdbcType=VARCHAR},
+      </if>
+      <if test="rank != null">
+        #{rank,jdbcType=INTEGER},
+      </if>
+      <if test="spuCode != null">
+        #{spuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="spuType != null">
+        #{spuType,jdbcType=BIT},
+      </if>
+      <if test="isUnifiedSpecs != null">
+        #{isUnifiedSpecs,jdbcType=BIT},
+      </if>
+      <if test="isSale != null">
+        #{isSale,jdbcType=BIT},
+      </if>
+       <if test="weight != null">
+        #{weight,jdbcType=DECIMAL},
+      </if>
+      <if test="saleCount != null">
+        #{saleCount,jdbcType=INTEGER},
+      </if>
+      <if test="customizeStockCount != null">
+        #{customizeStockCount,jdbcType=INTEGER},
+      </if>
+      <if test="spuKeysValue != null">
+        #{spuKeysValue,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=BIT},
+      </if>
+      <if test="descriptions != null">
+        #{descriptions,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- Admin根据商品ID查询商品信息 -->
+  <select id="queryGoodById" parameterType="com.wmeimob.yzfs.model.Goods" resultType="com.wmeimob.yzfs.vo.GoodsVO">
+	   select
+		    g.id,
+	        g.rank,
+	        g.spu_code spuCode,
+	        c.parent_id parentId,
+	        g.classes_id classesId,
+		    g.name,
+	        g.spu_type spuType,
+	        g.descriptions descriptions,
+		    g.is_unified_specs isunifiedSpecs,
+		    g.is_sale isSale,
+		    g.sale_count saleCount,
+		    g.weight,
+            g.customize_stock_count customizeStockCount,
+		    g.spu_keys spuKeysValue,
+		    (
+             select ifnull(ifnull(sum(egs.stock_count),0)-ifnull(ifnull(sum(egs.lock_count),0)+ifnull(sum(egs.sale_count),0),0),0) from ec_good_sku egs
+             where 1=1
+              and g.id=egs.spu_id
+            ) stockCount,
+	        (
+	           select ifnull(egs.price,0) from ec_good_sku egs
+	           where 1=1
+	           and g.id=egs.spu_id
+	           limit 0,1
+	        ) salePrice,
+	        (
+	           select ifnull(egs.market_price,0) from ec_good_sku egs
+	           where 1=1
+	           and g.id=egs.spu_id
+	           limit 0,1
+	        ) marketPrice
+	    from ec_goods g
+	    left join ec_goods_classes c on g.classes_id=c.id
+	    where g.status = 1
+	    and g.id= #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 根据参数修改商品信息 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.Goods">
+    update ec_goods
+    <set>
+      <if test="rank != null">
+        rank = #{rank,jdbcType=INTEGER},
+      </if>
+      <if test="spuCode != null">
+        spu_code = #{spuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="spuType != null">
+        spu_type = #{spuType,jdbcType=BIT},
+      </if>
+      <if test="isUnifiedSpecs != null">
+        is_unified_specs = #{isUnifiedSpecs,jdbcType=BIT},
+      </if>
+      <if test="isSale != null">
+        is_sale = #{isSale,jdbcType=BIT},
+      </if>
+      <if test="saleCount != null">
+        sale_count = #{saleCount,jdbcType=INTEGER},
+      </if>
+      <if test="customizeStockCount != null">
+        customize_stock_count = #{customizeStockCount,jdbcType=INTEGER},
+      </if>
+      <if test="spuKeysValue != null">
+        spu_keys = #{spuKeysValue,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=BIT},
+      </if>
+      <if test="descriptions != null">
+        descriptions = #{descriptions,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+
+    <!-- 上下架 -->
+    <update id="updateIsSale" parameterType="com.wmeimob.yzfs.model.Goods">
+    update ec_goods 
+    set
+    updated_at = SYSDATE(),
+    is_sale = #{isSale,jdbcType=BIT},
+    status = #{status,jdbcType=BIT}
+    where
+    id = #{id,jdbcType=VARCHAR}
+  </update>
+
+    <!-- 查询所有的商品 -->
+    <select id="selectByShopId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from ec_goods
+        where status=1
+        <if test="classesId !=null and classesId !=''">
+            and classes_id =#{classesId,jdbcType=VARCHAR}
+        </if>
+        order by created_at desc
+    </select>
+
+
+
+    <!--平台对商品上下架  -->
+    <update id="adminUpAndDown" parameterType="java.lang.String">
+    UPDATE ec_goods g,
+    ec_goods g2
+    SET
+    g.updated_at = SYSDATE(),g.is_frozen = IF (g2.is_frozen = 0, 1, 0)
+    WHERE
+    g.id = g2.id and g.id = #{id,jdbcType=VARCHAR}
+  </update>
+
+    <!-- 微信 - 标准模型- 通过goodId查询商品详情(图片，规格) -->
+    <resultMap id="GoodDetailMap" type="com.wmeimob.yzfs.vo.GoodDetailVO">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="shop_id" property="shopId" jdbcType="VARCHAR"/>
+        <result column="classes_id" property="classesId" jdbcType="VARCHAR"/>
+        <result column="markket_price" property="markketPrice" jdbcType="DECIMAL"/>
+        <result column="show_price" property="showPrice" jdbcType="DECIMAL"/>
+        <result column="show_points" property="showPoints" jdbcType="INTEGER"/>
+        <result column="is_single_order" property="isSingleOrder" jdbcType="BIT"/>
+        <result column="is_unified_specs" property="isUnifiedSpecs" jdbcType="BIT"/>
+        <result column="is_group" property="isGroup" jdbcType="BIT"/>
+        <result column="is_sale" property="isSale" jdbcType="BIT"/>
+        <result column="is_frozen" property="isFrozen" jdbcType="BIT"/>
+        <result column="shipping_type" property="shippingType" jdbcType="BIT"/>
+        <result column="shipping_fee" property="shippingFee" jdbcType="DECIMAL"/>
+        <result column="commission" property="commission" jdbcType="DECIMAL"/>
+        <result column="stock_count" property="stockCount" jdbcType="INTEGER"/>
+        <result column="lock_count" property="lockCount" jdbcType="INTEGER"/>
+        <result column="sale_count" property="saleCount" jdbcType="INTEGER"/>
+        <result column="customize_stock_count" property="customizeStockCount" jdbcType="INTEGER"/>
+        <result column="limited_count" property="limitedCount" jdbcType="INTEGER"/>
+        <result column="rank" property="rank" jdbcType="INTEGER"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="BIT"/>
+        <!-- 规格-->
+        <collection property="specs" javaType="ArrayList" ofType="com.wmeimob.yzfs.model.GoodsSpecs"
+                    select="com.wmeimob.yzfs.dao.GoodsSpecsMapper.selectSpecsByGoodId" column="id">
+        </collection>
+        <!-- 轮播图-->
+        <collection property="pics" javaType="ArrayList" ofType="com.wmeimob.yzfs.model.GoodsPics"
+                    select="com.wmeimob.yzfs.dao.GoodsPicsMapper.selectByGoodsId" column="id">
+        </collection>
+    </resultMap>
+    <select id="selectGoodDetailById" resultMap="GoodDetailMap">
+        SELECT 
+            id, 
+            spu_code,
+            name, 
+            shop_id, 
+            classes_id, 
+            markket_price, 
+            show_price, 
+            show_points, 
+            is_single_order,
+		    is_unified_specs, 
+		    is_group, 
+		    is_sale, 
+		    is_frozen, 
+		    shipping_type, 
+		    shipping_fee, 
+		    commission,
+		    stock_count, 
+		    lock_count, 
+		    sale_count, 
+		    customize_stock_count, 
+		    ifnull(limited_count,0) limited_count, 
+		    rank,
+		    created_at, 
+		    updated_at, 
+		    status
+        FROM  ec_goods eg
+        WHERE eg.id=#{goodId}
+    </select>
+
+    <!-- 查询商品的评论 -->
+    <resultMap type="com.wmeimob.yzfs.vo.GoodDetailCommentVO" id="GoodCommentMap">
+        <id column="commentId" property="commentId" jdbcType="VARCHAR"/>
+        <result column="userId" property="userId" jdbcType="VARCHAR"/>
+        <result column="userName" property="userName" jdbcType="VARCHAR"/>
+        <result column="headImgUrl" property="headImgUrl" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="reply_to" property="replyTo" jdbcType="VARCHAR"/>
+        <result column="grade" property="grade" jdbcType="TINYINT"/>
+        <result column="commentTime" property="commentTime" jdbcType="VARCHAR"/>
+        <result column="commentSpceName" property="commentSpceName" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="selectGoodComments" resultMap="GoodCommentMap">
+  	select egc.id commentId,egc.user_id userId,u.nick_name userName ,u.head_img headImgUrl,
+       egc.content,egc.reply_to,egc.grade, date_format(egc.created_at,'%Y-%m-%d %T') commentTime,
+	   egs.name commentSpceName
+	from ec_good_comments egc
+	left join users u on egc.user_id=u.id
+    left join order_items oi on oi.id=egc.order_item_id
+	left join ec_goods eg on eg.id=oi.good_id 
+    left join ec_goods_specs egs on egs.id=oi.good_spec_id
+	where egc.status=1 and eg.id=#{goodId}
+    order by egc.created_at desc
+  </select>
+
+    <select id="getMaxShippingFee" parameterType="java.util.List" resultType="java.math.BigDecimal">
+        SELECT
+        MAX(g.shipping_fee)
+        FROM
+        ec_goods g
+        WHERE
+        g.id IN
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            ( #{item.goodId} )
+        </foreach>
+    </select>
+
+    <!-- 查询商品和分类列表 -->
+    <resultMap id="GoodClassMap" type="com.wmeimob.yzfs.vo.GoodClassListVO">
+        <id column="paerntId" property="paerntId" jdbcType="VARCHAR"/>
+        <result column="parentName" property="parentName" jdbcType="VARCHAR"/>
+        <collection property="childClass" javaType="ArrayList" select="selectClassByParent" column="paerntId"
+                    ofType="com.wmeimob.yzfs.model.Goodsclass"></collection>
+    </resultMap>
+    <select id="selectGoodClassList" resultMap="GoodClassMap">
+   	select egc.id paerntId, egc.name parentName
+	from ec_goods_classes egc
+	where egc.status=1
+	and (egc.parent_id is null or egc.parent_id='')
+  </select>
+    <select id="selectClassByParent" resultType="com.wmeimob.yzfs.model.GoodsClass">
+  	select egc.id,egc.name,
+  	egc.parent_id parentId,
+  	egc.pic_key picKey
+	from ec_goods_classes egc 
+	where egc.`status`=1
+	and parent_id=#{paerntId}
+  </select>
+    <select id="selectGoodsBySpecId" resultType="com.wmeimob.yzfs.vo.GoodsVO">
+		SELECT
+          eg.id,
+           eg.name,
+           eg.shop_id shopId,
+           eg.classes_id classesId,
+           eg.markket_price markketPrice,
+            eg.show_price showPrice,
+            eg.show_points showPoint,
+            eg.is_single_order isSingleOrder,
+            eg.is_unified_specs isUnifiedSpecs,
+            eg.is_group isGroup,
+            eg.is_sale isSale,
+            eg.is_frozen isFrozen,
+            eg.shipping_type shippingType,
+            eg.shipping_fee shippingFee,
+            eg.commission commission,
+            egs.stock_count stockCount,
+            egs.lock_count lockCount,
+            egs.sale_count saleCount,
+            eg.customize_stock_count customizeStockCount,
+            eg.limited_count limitedCount,
+            eg.rank rank,
+            eg.created_at createdAt,
+            eg.updated_at updatedAt,
+            eg.status status,
+            egs.sale_price salePrice,
+            egs.sale_points salePoints
+		FROM
+			ec_goods_specs egs
+		LEFT JOIN ec_goods eg ON egs.good_id = eg.id
+		WHERE
+			egs.id = #{goodSpecId}
+  </select>
+
+  <!--商品销售统计  -->
+  <select id="queryGoodStatistics" resultType="com.wmeimob.yzfs.vo.DataStatisticsVO">
+	  select 
+		  egs.sku_code skuCode,
+		  egc.name secondName,
+		  egc1.name firstName,
+		  eg.name goodName,
+		  egs.sku_name skuName,
+		  egs.pic_key picKey,
+		  ifnull((
+			select sum(ifnull(oi.quantity,0)) from order_items oi
+		    left join order_item_sku ois on ois.id=oi.good_spec_id
+			where ois.sku_code=egs.sku_code
+			and oi.container_type=0
+			and ifnull(oi.refunds_status,0) in (0,6)
+			and ifnull(oi.status,0)=1
+	        <if test="startTime != null and startTime != ''">
+	            and date_format(oi.created_at,'%Y-%m-%d') &gt;= #{startTime}
+	        </if>
+	        <if test="endTime != null and endTime != '' ">
+	            and date_format(oi.created_at,'%Y-%m-%d') &lt;= #{endTime}
+	        </if>
+		   ),0) saleCount,
+        
+		  ifnull((
+			select sum(ifnull(oi.quantity,0)*ifnull(oi.sale_price,0)) from order_items oi
+		    left join order_item_sku ois on ois.id=oi.good_spec_id
+			where ois.sku_code=egs.sku_code
+			and oi.container_type=0
+			and ifnull(oi.refunds_status,0) in (0,6)
+			and ifnull(oi.status,0)=1
+	        <if test="startTime != null and startTime != ''">
+	            and date_format(oi.created_at,'%Y-%m-%d') &gt;= #{startTime}
+	        </if>
+	        <if test="endTime != null and endTime != '' ">
+	            and date_format(oi.created_at,'%Y-%m-%d') &lt;= #{endTime}
+	        </if>
+		   ),0) saleAmount,
+        
+		  ifnull((
+			select sum(ifnull(toi.quantity,0)) from order_items toi
+			left join order_item_sku ois on ois.id=toi.good_spec_id
+			where ois.sku_code=egs.sku_code
+			and toi.container_type=0
+			and ifnull(toi.refunds_status,0) =3
+			and ifnull(toi.status,0)=1
+	        <if test="startTime != null and startTime != ''">
+	            and date_format(toi.created_at,'%Y-%m-%d') &gt;= #{startTime}
+	        </if>
+	        <if test="endTime != null and endTime != '' ">
+	            and date_format(toi.created_at,'%Y-%m-%d') &lt;= #{endTime}
+	        </if>
+			),0) refundCount,
+        
+		  ifnull((
+			select sum(ifnull(toi.quantity,0)*ifnull(toi.sale_price,0)) from order_items toi
+			left join order_item_sku ois on ois.id=toi.good_spec_id
+			where ois.sku_code=egs.sku_code
+			and toi.container_type=0
+			and ifnull(toi.refunds_status,0) =3
+			and ifnull(toi.status,0)=1
+	        <if test="startTime != null and startTime != ''">
+	            and date_format(toi.created_at,'%Y-%m-%d') &gt;= #{startTime}
+	        </if>
+	        <if test="endTime != null and endTime != '' ">
+	            and date_format(toi.created_at,'%Y-%m-%d') &lt;= #{endTime}
+	        </if>
+		   ),0) refundAmount,
+        
+		  ifnull((
+			select sum(ifnull(toi.sale_points,0)) from order_items toi
+			left join order_item_sku ois on ois.id=toi.good_spec_id
+			where ois.sku_code=egs.sku_code
+			and toi.container_type=0
+			and ifnull(toi.status,0)=1
+	        <if test="startTime != null and startTime != ''">
+	            and date_format(toi.created_at,'%Y-%m-%d') &gt;= #{startTime}
+	        </if>
+	        <if test="endTime != null and endTime != '' ">
+	            and date_format(toi.created_at,'%Y-%m-%d') &lt;= #{endTime}
+	        </if>
+			),0) deductibleAmount
+        
+		    from ec_good_sku egs
+		    left join ec_goods eg on egs.spu_id=eg.id
+		    left join ec_goods_classes egc on eg.classes_id=egc.id
+		    left join ec_goods_classes egc1 on egc.parent_id=egc1.id
+		    where 1=1
+	        and ifnull(egs.status,0)=1
+	        <!-- 一级分类 -->
+	        <if test="firstClassId !=null and firstClassId !='' ">
+	            and egc1.id = #{firstClassId}
+	        </if>
+	        <!-- 二级分类 -->
+	        <if test="secondClassId !=null and secondClassId !='' ">
+	            and egc.id = #{secondClassId}
+	        </if>
+	        <!-- 商品名称-->
+	        <if test="goodName !=null and goodName !='' ">
+	            and eg.name like '%${goodName}%'
+	        </if>
+	        having 1=1
+	        <!--默认都是销量为降序排序 -->
+	        <if test="sortType =='saleSort' and sort">
+	            order by saleCount desc,eg.name,egc.name,egc1.name
+	        </if>
+	        <!--销量为降序升序 -->
+	        <if test="sortType =='saleSort' and !sort">
+	            order by saleCount asc,eg.name,egc.name,egc1.name
+	        </if>
+	        <!--销售额为降序排序 -->
+	        <if test="sortType =='saleAmountSort' and sort">
+	            order by saleAmount desc,eg.name,egc.name,egc1.name
+	        </if>
+	        <!--销售额为升序排序 -->
+	        <if test="sortType =='saleAmountSort' and !sort">
+	            order by saleAmount asc,eg.name,egc.name,egc1.name
+	        </if>
+	        <!--商品一级分类升序 -->
+	        <if test="sortType =='firstClassSort' and sort">
+	            order by egc1.name desc
+	        </if>
+	        <!--商品一级分类降序 -->
+	        <if test="sortType =='firstClassSort' and !sort">
+	            order by egc1.name asc
+	        </if>
+	        <!--商品二级分类升序 -->
+	        <if test="sortType =='secondClassSort' and sort">
+	            order by egc.name desc
+	        </if>
+	        <!--商品二级分类降序 -->
+	        <if test="sortType =='secondClassSort' and !sort">
+	            order by egc.name asc
+	        </if>
+	        <!--商品名称分组 -->
+	        <if test="sortType =='pnameSort' and sort">
+	            order by eg.name desc
+	        </if>
+	        <!--商品名称 -->
+	        <if test="sortType =='pnameSort' and !sort">
+	            order by eg.name asc
+	        </if>
+    </select>
+    
+    
+    <select id="getGoodCommentRate" parameterType="java.lang.String"
+            resultType="com.wmeimob.yzfs.vo.GoodCommentRateVO">
+	SELECT m.a commentCount,
+	 	m.b niceCommentCount,
+	 	if(m.a=0,'100%',concat(FORMAT(m.b/m.a*100,2),'%')) niceCommentRate
+	from (
+		SELECT sum(if(1,1,1)) a,sum(if(egc.grade>2,1,0))b
+		from order_items oi 
+		LEFT JOIN ec_good_comments egc on egc.order_item_id = oi.id
+		where oi.container_type = '0'
+		and egc.`status` = 1
+		and oi.good_id=#{goodId} ) m ;
+</select>
+    <select id="getGoodDescriptions" parameterType="java.lang.String" resultType="java.lang.String">
+	SELECT  eg.descriptions
+	from ec_goods eg where eg.id=#{goodId};
+</select>
+    <select id="queryBuyNowGood" parameterType="com.wmeimob.yzfs.vo.GoodsVO"
+            resultType="com.wmeimob.yzfs.vo.GoodsVO">
+          SELECT eg.sale_price  salePrice,
+              eg.sale_points salePoints,
+              eg.shipping_fee shippingFee
+           from ec_goods eg
+                where eg.`status` ='1'
+                and eg.is_sale = '1'
+                and eg.is_frozen ='0'
+                and eg.id=#{id};
+    </select>
+    <select id="selectLimitedGoodLastCount" resultType="int">
+        SELECT
+            ifnull(sum(ifnull(oi.quantity,0)),0)
+        FROM
+            ec_goods eg
+        LEFT JOIN order_items oi ON eg.id = oi.good_id
+        LEFT JOIN orders o ON o.id = oi.container_id
+        WHERE
+            o.owner_id = #{userId}
+        AND eg.id = #{goodId}
+    </select>
+    
+    <!-- 根据一级分类或者二级分类查询所有的商品 -->
+    <select id="selectGoodListByCategoryId" parameterType="com.wmeimob.yzfs.vo.GoodsVO" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from ec_goods
+        where status=1
+        <if test="parentId !=null and parentId !='' ">
+            and classes_id in (select  id from  ec_goods_classes where parent_id=#{parentId,jdbcType=VARCHAR})
+        </if>
+        <if test="classesId !=null and classesId !='' ">
+            and classes_id =#{classesId,jdbcType=VARCHAR}
+        </if>
+        order by created_at desc
+    </select>
+    
+    <!-- WX查询标准商品详情 -->
+    <resultMap id="WXBaseResultMap" type="com.wmeimob.yzfs.model.Goods" >
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <id column="spuCode" jdbcType="VARCHAR" property="spuCode" />
+    <result column="classesId" jdbcType="VARCHAR" property="classesId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="spuType" jdbcType="BIT" property="spuType" />
+    <result column="isUnifiedSpecs" jdbcType="BIT" property="isUnifiedSpecs" />
+    <result column="isSale" jdbcType="BIT" property="isSale" />
+    <result column="weight" jdbcType="DECIMAL" property="weight" />
+    <result column="skuName" jdbcType="VARCHAR" property="skuName" />
+    <result column="skuCode" jdbcType="VARCHAR" property="skuCode" />
+    <result column="stockCount" jdbcType="INTEGER" property="stockCount" />
+    <result column="salePrice" jdbcType="DECIMAL" property="salePrice" />
+    <result column="marketPrice" jdbcType="DECIMAL" property="marketPrice" />
+    <result column="saleCount" jdbcType="INTEGER" property="saleCount" />
+    <!-- 商品轮播图-->
+    <collection property="goodPicsList" javaType="ArrayList" ofType="com.wmeimob.yzfs.model.GoodsPics"
+                    select="com.wmeimob.yzfs.dao.GoodsPicsMapper.selectByGoodsId" column="{id=id}"/>
+    
+  </resultMap>
+  
+    <!-- WX查询商品详情 -->
+    <resultMap id="WXNeckBaseResultMap" type="com.wmeimob.yzfs.model.Goods" >
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <id column="spuCode" jdbcType="VARCHAR" property="spuCode" />
+    <result column="classesId" jdbcType="VARCHAR" property="classesId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="spuType" jdbcType="BIT" property="spuType" />
+    <result column="isUnifiedSpecs" jdbcType="BIT" property="isUnifiedSpecs" />
+    <result column="isSale" jdbcType="BIT" property="isSale" />
+    <result column="weight" jdbcType="DECIMAL" property="weight" />
+    <result column="skuName" jdbcType="VARCHAR" property="skuName" />
+    <result column="skuCode" jdbcType="VARCHAR" property="skuCode" />
+    <result column="stockCount" jdbcType="INTEGER" property="stockCount" />
+    <result column="salePrice" jdbcType="DECIMAL" property="salePrice" />
+    <result column="marketPrice" jdbcType="DECIMAL" property="marketPrice" />
+    <result column="saleCount" jdbcType="INTEGER" property="saleCount" />
+    <!-- 查询私人定制商品轮播图 -->
+    <collection property="neckSkuList" javaType="ArrayList" ofType="com.wmeimob.yzfs.model.EcGoodSku"
+            select="com.wmeimob.yzfs.dao.EcNeckSkuMapper.selectByPrimaryKey"  column="{spuId=id}"/>
+    
+  	</resultMap>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultType="com.wmeimob.yzfs.model.Goods">
+    	select id,name,spu_keys
+    	from ec_goods
+    	where id = #{id,jdbcType=VARCHAR}
+    </select>
+    
+    <!-- WX查询商品列表 -->
+    <select id="queryGoodsListFromWX" parameterType="com.wmeimob.yzfs.model.Goods" resultType="com.wmeimob.yzfs.vo.GoodsVO">
+        select 
+	        g.id id,
+	        g.spu_code spuCode,
+	        g.name name,
+	        g.is_sale isSale,
+            g.spu_keys spuKeysValue,
+	        g.is_unified_specs isUnifiedSpecs,
+		      (
+		       select egs.market_price from ec_good_sku  egs where egs.spu_id=g.id
+		       
+		       order by price desc 
+		       limit 0,1
+		      ) marketPrice,
+		      (
+		       select egs.price from ec_good_sku  egs where egs.spu_id=g.id
+		       order by price desc 
+		       limit 0,1
+		      ) salePrice,
+		      ifnull((
+		       select sum(egs.sale_count) from ec_good_sku  egs where egs.spu_id=g.id
+		       order by price desc 
+		       limit 0,1
+		      ),0) saleCount
+        from ec_goods g
+        left join ec_goods_classes c on c.id = g.classes_id
+        where g.status = 1
+        and g.is_sale=1
+        <if test="name != null">
+            and g.name like CONCAT('%',#{name,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="classesId !=null and classesId !=''">
+            and g.classes_id = #{classesId,jdbcType=VARCHAR}
+        </if>
+        order by g.updated_at desc,g.rank desc
+    </select>
+    
+    <!-- WX查询标准商品详情 -->
+    <select id="queryGoodsItemFromWX" parameterType="com.wmeimob.yzfs.model.Goods" resultMap="WXBaseResultMap">
+	   select
+		    g.id,
+	        g.spu_code spuCode,
+	        g.classes_id classesId,
+		    g.name,
+	        g.spu_type spuType,
+		    g.is_unified_specs isUnifiedSpecs,
+		    g.is_sale isSale,
+		    g.weight,
+		    (
+             select egs.sku_name from ec_good_sku egs
+             where 1=1
+             and g.id=egs.spu_id
+             order by egs.price
+             limit 0,1
+             )skuName,
+		     (
+             select egs.sku_code from ec_good_sku egs
+             where 1=1
+             and g.id=egs.spu_id
+             order by egs.price
+             limit 0,1
+             ) skuCode,
+		     (
+             select ifnull(ifnull(sum(egs.stock_count),0)-ifnull(ifnull(sum(egs.lock_count),0)+ifnull(sum(egs.sale_count),0),0),0) from ec_good_sku egs
+             where 1=1
+             and g.id=egs.spu_id
+             order by egs.price
+             limit 0,1
+             ) stockCount,
+	         (
+	           select ifnull(egs.price,0) from ec_good_sku egs
+	           where 1=1
+	           and g.id=egs.spu_id
+               order by egs.price
+	           limit 0,1
+	         ) salePrice,
+	         (
+	           select ifnull(egs.market_price,0) from ec_good_sku egs
+	           where 1=1
+	           and g.id=egs.spu_id
+               order by egs.price
+	           limit 0,1
+	          ) marketPrice,
+	          (
+	           select ifnull(egs.sale_count,0) from ec_good_sku egs
+	           where 1=1
+	           and g.id=egs.spu_id
+               order by egs.price
+	           limit 0,1
+	           ) saleCount
+	    from ec_goods g
+	    where g.status = 1
+	     and id = #{id,jdbcType=VARCHAR}
+    </select>
+    
+    <!-- WX查询私人定制商品详情 -->
+    <select id="queryGoodsItemNeckFromWX" parameterType="com.wmeimob.yzfs.model.Goods" resultMap="WXNeckBaseResultMap">
+	   select
+		    g.id,
+	        g.spu_code spuCode,
+	        g.classes_id classesId,
+		    g.name,
+	        g.spu_type spuType,
+		    g.is_unified_specs isUnifiedSpecs,
+		    g.is_sale isSale,
+		    g.weight,
+		    (
+             select egs.sku_name from ec_good_sku egs
+             where 1=1
+             and g.id=egs.spu_id
+             order by egs.price
+             limit 0,1
+             )skuName,
+		     (
+             select egs.sku_code from ec_good_sku egs
+             where 1=1
+             and g.id=egs.spu_id
+             order by egs.price
+             limit 0,1
+             ) skuCode,
+		     (
+             select ifnull(ifnull(sum(egs.stock_count),0)-ifnull(ifnull(sum(egs.lock_count),0)+ifnull(sum(egs.sale_count),0),0),0) from ec_good_sku egs
+             where 1=1
+             and g.id=egs.spu_id
+             order by egs.price
+             limit 0,1
+             ) stockCount,
+	         (
+	           select ifnull(egs.price,0) from ec_good_sku egs
+	           where 1=1
+	           and g.id=egs.spu_id
+               order by egs.price
+	           limit 0,1
+	         ) salePrice,
+	         (
+	           select ifnull(egs.market_price,0) from ec_good_sku egs
+	           where 1=1
+	           and g.id=egs.spu_id
+               order by egs.price
+	           limit 0,1
+	          ) marketPrice,
+	          (
+	           select ifnull(egs.sale_count,0) from ec_good_sku egs
+	           where 1=1
+	           and g.id=egs.spu_id
+               order by egs.price
+	           limit 0,1
+	           ) saleCount
+	    from ec_goods g
+	    where g.status = 1
+	     and id = #{id,jdbcType=VARCHAR}
+    </select>
+    
+    <!-- 根据商品ID查询商品详情文本信息 -->
+    <select id="queryGoodDetailsById" resultMap="BaseResultMap" parameterType="java.lang.String">
+         select
+           <include refid="Blob_Column_List"/>
+        from ec_goods
+        where status=1
+	    and id=#{id}
+    </select>
+    
+</mapper>

@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.GoodsCommentMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.GoodsComment" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="order_item_id" property="orderItemId" jdbcType="VARCHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="reply_to" property="replyTo" jdbcType="VARCHAR" />
+    <result column="grade" property="grade" jdbcType="TINYINT" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, order_item_id, content, reply_to, grade, created_at, updated_at, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from ec_good_comments
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from ec_good_comments
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.wmeimob.yzfs.model.GoodsComment" >
+    insert into ec_good_comments (id, user_id, order_item_id, 
+      content, reply_to, grade, 
+      created_at, updated_at, status
+      )
+    values (#{id,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{orderItemId,jdbcType=VARCHAR}, 
+      #{content,jdbcType=VARCHAR}, #{replyTo,jdbcType=VARCHAR}, #{grade,jdbcType=TINYINT}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{status,jdbcType=BIT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.GoodsComment" >
+    insert into ec_good_comments
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="orderItemId != null" >
+        order_item_id,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="replyTo != null" >
+        reply_to,
+      </if>
+      <if test="grade != null" >
+        grade,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderItemId != null" >
+        #{orderItemId,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="replyTo != null" >
+        #{replyTo,jdbcType=VARCHAR},
+      </if>
+      <if test="grade != null" >
+        #{grade,jdbcType=TINYINT},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.GoodsComment" >
+    update ec_good_comments
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderItemId != null" >
+        order_item_id = #{orderItemId,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="replyTo != null" >
+        reply_to = #{replyTo,jdbcType=VARCHAR},
+      </if>
+      <if test="grade != null" >
+        grade = #{grade,jdbcType=TINYINT},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wmeimob.yzfs.model.GoodsComment" >
+    update ec_good_comments
+    set user_id = #{userId,jdbcType=VARCHAR},
+      order_item_id = #{orderItemId,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      reply_to = #{replyTo,jdbcType=VARCHAR},
+      grade = #{grade,jdbcType=TINYINT},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=BIT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+  <!-- 查询评论列表信息 -->
+  <select id="queryCommentsInfo" parameterType="java.util.Map" resultType="com.wmeimob.yzfs.vo.GoodsCommentVO">
+    select 
+        g.id id,
+        oi.good_id goodId,
+        o.order_no orderNo,
+        g1.name goodsName,
+        g.user_id userId,
+        u.nick_name userNickName,
+        g.content content,
+        g.grade grade,
+        date_format(g.created_at,'%Y-%m-%d %T') createdAt,
+        g.status,
+        oi.container_id orderId
+    from 
+        ec_good_comments g
+    left join order_items oi on g.order_item_id = oi.id   and oi.container_type=0 
+    left join users u on g.user_id = u.id
+    left join orders o on o.id = oi.container_id
+    left join ec_goods g1 on oi.good_id = g1.id
+    where 1 = 1
+    <if test="id != null and id != '' " >
+      and g.id = #{id,jdbcType=VARCHAR}
+    </if>
+    <if test="createStart != null and createStart != ''">
+        and date_format(g.created_at,'%Y-%m-%d') &gt;= #{createStart}
+    </if>
+    <if test="createEnd != null and createEnd != '' ">
+        and date_format(g.created_at,'%Y-%m-%d') &lt;= #{createEnd}
+    </if>
+    <if test="grade !=0 " >
+        and g.grade=#{grade}
+    </if>
+    <if test="nickName != null and nickName != ''" >
+      and u.nick_name like '%${nickName}%'
+    </if>
+    <if test="goodsName != null and goodsName != ''" >
+      and g1.name like '%${goodsName}%'
+      or o.order_no like '%${goodsName}%'
+    </if>
+    order by g.updated_at desc
+  </select>
+
+ <!-- 隐藏或者显示评论 -->
+  <update id="deleteComments" parameterType="com.wmeimob.yzfs.vo.GoodsCommentVO">
+    update ec_good_comments g 
+    set
+    g.updated_at = SYSDATE(),
+    g.status =#{status,jdbcType=INTEGER}
+    where 1=1
+    and  g.id = #{id,jdbcType=VARCHAR}
+  </update>
+  <insert id="insertEvaluates" parameterType="java.util.List">
+  	    insert into ec_good_comments (id, user_id, order_item_id, 
+      content, reply_to, grade, 
+      created_at, updated_at, status
+      )
+    values 
+    <foreach collection="list" item="item" index="index"  
+        open="" separator="," close="">  
+    (#{item.id,jdbcType=VARCHAR}, #{item.userId,jdbcType=VARCHAR}, #{item.orderItemId,jdbcType=VARCHAR}, 
+      #{item.content,jdbcType=VARCHAR}, #{item.replyTo,jdbcType=VARCHAR}, #{item.grade,jdbcType=TINYINT}, 
+      #{item.createdAt,jdbcType=TIMESTAMP}, #{item.updatedAt,jdbcType=TIMESTAMP}, #{item.status,jdbcType=BIT}
+      )
+      </foreach> 
+  </insert>
+  <select id="selectByOrderItemsIds" parameterType="com.wmeimob.yzfs.model.GoodsComment" resultMap="BaseResultMap" >
+  		  select  <include refid="Base_Column_List" /> 
+  		  from ec_good_comments
+  		  where order_item_id in
+		    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+		    	( #{item.orderItemId,jdbcType=VARCHAR} )
+		    </foreach>
+  </select>
+  
+  <resultMap id="CommentBaseResultMap" type="com.wmeimob.yzfs.model.GoodsComment" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="order_item_id" property="orderItemId" jdbcType="VARCHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="reply_to" property="replyTo" jdbcType="VARCHAR" />
+    <result column="reply_to" property="replyTo" jdbcType="VARCHAR" />
+    <result column="grade" property="grade" jdbcType="TINYINT" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+    <result column="is_wonderful" property="isWonderful" jdbcType="BIT" />
+    <result column="goodsName" property="goodsName" jdbcType="VARCHAR" />
+    <result column="skuName" property="skuName" jdbcType="VARCHAR" />
+    <result column="picKey" property="picKey" jdbcType="VARCHAR" />
+    <result column="headImg" property="headImg" jdbcType="VARCHAR" />
+    <result column="userNickName" property="userNickName" jdbcType="VARCHAR" />
+    
+    
+    <!-- 查询评论下的图片 -->
+    <collection property="goodsCommentPicList" javaType="ArrayList" ofType="com.wmeimob.yzfs.model.GoodsCommentPic"
+            select="com.wmeimob.yzfs.dao.GoodsCommentMapper.queryCommentsPicList"  column="{commentId=id}"/>
+  </resultMap>
+  
+  
+  <!--评论 图片列表 -->
+  <resultMap id="CommentPicBaseResultMap" type="com.wmeimob.yzfs.model.GoodsCommentPic" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="comment_id" property="commentId" jdbcType="VARCHAR" />
+    <result column="pic_key" property="picKey" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  
+  
+    <!-- 微信首页查询精彩评论列表信息 -->
+  <select id="queryCommentsList"  resultMap="CommentBaseResultMap" parameterType="com.wmeimob.yzfs.model.GoodsComment">
+    select 
+        g.id id,
+        oi.good_id goodId,
+        o.order_no orderNo,
+        g1.name goodsName,
+        g.user_id userId,
+        u.nick_name userNickName,
+        u.head_img headImg,
+        g.content content,
+        g.grade grade,
+        date_format(g.created_at,'%Y-%m-%d %T') createdAt,
+        g.status,
+        oi.container_id orderId,
+        ois.order_item_sku_name skuName,
+        ois.pic_key picKey
+    from 
+        ec_good_comments g
+    left join order_items oi on g.order_item_id = oi.id   and oi.container_type=0 
+    left join order_item_sku ois on oi.good_spec_id=ois.id
+    left join users u on g.user_id = u.id
+    left join orders o on o.id = oi.container_id
+    left join ec_goods g1 on oi.good_id = g1.id
+    where 1 = 1
+    <if test="isWonderful != null and isWonderful != ''" >
+         and g.is_wonderful=#{isWonderful,jdbcType=BIT}
+    </if>
+    <if test="goodId != null and goodId != ''" >
+         and oi.good_id=#{goodId,jdbcType=VARCHAR}
+    </if>
+    order by g.grade desc
+  </select>
+  
+  <!-- 微信首页查询精彩评论列表信息 -->
+  <select id="queryCommentsPicList" parameterType="com.wmeimob.yzfs.model.GoodsCommentPic" resultMap="CommentPicBaseResultMap">
+       select 
+         id,
+         comment_id,
+         pic_key 
+       from ec_good_comments_pic
+	   where 1 = 1
+	   and comment_id = #{commentId,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- WX新增评论图片 -->
+  <insert id="insertCommentPicList" parameterType="java.util.List">
+  	 insert into ec_good_comments_pic 
+  	 (
+  	    id, comment_id, pic_key,created_at, updated_at, status
+     )
+     values 
+    <foreach collection="list" item="item" index="index"  
+        open="" separator="," close="">  
+    (
+      #{item.id,jdbcType=VARCHAR}, #{item.commentId,jdbcType=VARCHAR}, #{item.picKey,jdbcType=VARCHAR}, 
+      #{item.createdAt,jdbcType=TIMESTAMP}, #{item.updatedAt,jdbcType=TIMESTAMP}, #{item.status,jdbcType=BIT}
+    )
+    </foreach> 
+  </insert>
+  
+</mapper>

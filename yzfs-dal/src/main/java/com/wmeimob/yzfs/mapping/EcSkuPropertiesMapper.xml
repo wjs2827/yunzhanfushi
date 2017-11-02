@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.EcSkuPropertiesMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.EcSkuProperties" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="category_id" property="categoryId" jdbcType="VARCHAR" />
+    <result column="sku_name" property="skuName" jdbcType="VARCHAR" />
+    <result column="is_used" property="isUsed" jdbcType="BIT" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
+    <result column="rank" property="rank" jdbcType="INTEGER" />
+    
+    <!-- 查询SKU明细 -->
+     <collection property="skuItem" javaType="ArrayList" ofType="com.wmeimob.yzfs.model.EcSkuPropertiesItem"
+            select="com.wmeimob.yzfs.dao.EcSkuPropertiesItemMapper.selectByPrimaryKey"  column="{ecSkuPropertiesId=id}"/>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, category_id, sku_name, is_used, created_at, updated_at, is_deleted,rank
+  </sql>
+  
+  <!-- 根据分类ID查询SKU以及子属性值 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from ec_sku_properties
+    where category_id = #{categoryId,jdbcType=VARCHAR}
+    and is_deleted=1
+    order by  id
+  </select>
+  
+  <!-- 根据ID删除该SKU以及子sku属性 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from ec_sku_properties
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  
+  <!-- 新增SKU -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.EcSkuProperties" useGeneratedKeys="true" keyProperty="id">
+    insert into ec_sku_properties
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="categoryId != null" >
+        category_id,
+      </if>
+      <if test="skuName != null" >
+        sku_name,
+      </if>
+      <if test="isUsed != null" >
+        is_used,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="rank != null" >
+        rank,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="categoryId != null" >
+        #{categoryId,jdbcType=VARCHAR},
+      </if>
+      <if test="skuName != null" >
+        #{skuName,jdbcType=VARCHAR},
+      </if>
+      <if test="isUsed != null" >
+        #{isUsed,jdbcType=BIT},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=BIT},
+      </if>
+       <if test="rank != null" >
+        rank=#{rank,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  
+</mapper>

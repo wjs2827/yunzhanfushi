@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.NecklineTypeMapper" >
+  <resultMap id="NecklineTypeResultMap" type="com.wmeimob.yzfs.model.NecklineType" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="neck_name" property="neckName" jdbcType="VARCHAR" />
+    <result column="pic_key" property="picKey" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
+  </resultMap>
+  
+  <resultMap id="NecklineFabricTypeResultMap" type="com.wmeimob.yzfs.model.NecklineFabricType" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="fabric_name" property="fabricName" jdbcType="VARCHAR" />
+    <result column="pic_key" property="picKey" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
+  </resultMap>
+  
+  <!-- 查询领口信息列表 -->
+  <select id="queryNecklineTypeList" parameterType="com.wmeimob.yzfs.model.NecklineType" resultMap="NecklineTypeResultMap">
+	  select 
+		 nt.id,
+		 nt.neck_name,
+		 nt.pic_key 
+	  from neckline_type nt
+	  where 1=1
+	  and nt.is_deleted=1
+  </select>
+  
+  <!-- 查询布料信息列表 -->
+  <select id="queryNecklineFabricTypeList" parameterType="com.wmeimob.yzfs.model.NecklineFabricType" resultMap="NecklineFabricTypeResultMap">
+	  select 
+		 nft.id,
+		 nft.fabric_name,
+		 nft.pic_key 
+	   from neckline_fabric_type nft
+	   where 1=1
+	   and nft.is_deleted=1
+  </select>
+  
+  
+  <!-- WX查询领口信息列表 -->
+  <select id="queryNecklineTypeListFromWX" parameterType="java.util.List" resultMap="NecklineTypeResultMap">
+	  select 
+		 nt.id,
+		 nt.neck_name,
+		 nt.pic_key 
+	  from neckline_type nt
+	  where 1=1
+	  and nt.is_deleted=1
+	  and nt.id in
+	  <foreach collection="list" item = "item" open="(" separator="," close=")">
+      #{item}  
+      </foreach> 
+  </select>
+  
+  <!-- WX查询布料信息列表 -->
+  <select id="queryNecklineFabricTypeListFromWX" parameterType="java.util.List" resultMap="NecklineFabricTypeResultMap">
+	  select 
+		 nft.id,
+		 nft.fabric_name,
+		 nft.pic_key 
+	   from neckline_fabric_type nft
+	   where 1=1
+	   and nft.is_deleted=1
+	   and nft.id in
+	  <foreach collection="list" item = "item" open="(" separator="," close=")">
+      #{item}  
+      </foreach> 
+  </select>
+  
+  <!-- 新增领口信息 -->
+  <insert id="insertNecklineType" parameterType="com.wmeimob.yzfs.model.NecklineType" >
+    insert into neckline_type
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="neckName != null" >
+        neck_name,
+      </if>
+      <if test="picKey != null" >
+        pic_key,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="neckName != null" >
+        #{neckName,jdbcType=VARCHAR},
+      </if>
+      <if test="picKey != null" >
+        #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 新增布料信息信息 -->
+  <insert id="insertNecklineFabricType" parameterType="com.wmeimob.yzfs.model.NecklineFabricType" >
+    insert into neckline_fabric_type
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="fabricName != null" >
+        fabric_name,
+      </if>
+      <if test="picKey != null" >
+        pic_key,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="fabricName != null" >
+        #{fabricName,jdbcType=VARCHAR},
+      </if>
+      <if test="picKey != null" >
+        #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据参数修改领口信息 -->
+  <update id="updateNecklineTypeByParams" parameterType="com.wmeimob.yzfs.model.NecklineType">
+     update neckline_type
+      <trim prefix="set" suffixOverrides=",">
+	  <if test="neckName!=null">neck_name=#{neckName},</if>
+	  <if test="picKey!=null">pic_key=#{picKey},</if>
+	  <if test="isDeleted!=null">is_deleted=#{isDeleted},</if>
+	 </trim>
+     where id=#{id}
+  </update>
+  
+  <!-- 根据参数修改布料信息 -->
+  <update id="updateNecklineFabricTypeByParams" parameterType="com.wmeimob.yzfs.model.NecklineFabricType">
+     update neckline_fabric_type
+      <trim prefix="set" suffixOverrides=",">
+	  <if test="fabricName">fabric_name=#{fabricName},</if>
+	  <if test="picKey">pic_key=#{picKey},</if>
+	  <if test="isDeleted !=null">is_deleted=#{isDeleted},</if>
+	 </trim>
+     where id=#{id}
+  </update>
+</mapper>

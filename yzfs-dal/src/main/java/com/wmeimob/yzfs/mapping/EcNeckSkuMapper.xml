@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.EcNeckSkuMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.EcNeckSku" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="spu_id" property="spuId" jdbcType="VARCHAR" />
+    <result column="spu_code" property="spuCode" jdbcType="VARCHAR" />
+    <result column="sku_code" property="skuCode" jdbcType="VARCHAR" />
+    <result column="sku_name" property="skuName" jdbcType="VARCHAR" />
+    <result column="sale_price" property="salePrice" jdbcType="DECIMAL" />
+    <result column="pic_key" property="picKey" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, spu_id, spu_code, sku_code, sku_name, sale_price, pic_key, created_at, updated_at,status
+  </sql>
+  
+  <!-- 根据参数查询可改装SKU列表 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from ec_neck_sku
+    <where>
+      status=1
+      and spu_id = #{spuId}
+    </where>
+      
+  </select>
+  
+  <!-- 根据商品ID删除之前的SKU属性 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from ec_neck_sku
+    where spu_id = #{spuId,jdbcType=VARCHAR}
+  </delete>
+  
+      
+  <!-- 根据SKU编码查询商品SKU -->
+  <select id="queryGoodNeckSkuBySkuCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from ec_neck_sku
+    where sku_code = #{skuCode}
+    and spu_id = #{spuId}
+  </select>
+  
+  <!-- 批量新增KSU属性值 -->
+  <insert id="insertBatch"  parameterType="java.util.List">
+    insert into ec_neck_sku (spu_id, spu_code, 
+      sku_code, sku_name, sale_price, 
+      pic_key, created_at, updated_at, 
+      status)
+    values  
+    <foreach collection="list" item="item" index="index" separator=","  >  
+        (#{item.spuId,jdbcType=VARCHAR},#{item.spuCode,jdbcType=VARCHAR},#{item.skuCode,jdbcType=VARCHAR},#{item.skuName,jdbcType=VARCHAR},#{item.salePrice,jdbcType=DECIMAL},
+        #{item.picKey,jdbcType=VARCHAR},#{item.createdAt,jdbcType=TIMESTAMP},#{item.updatedAt,jdbcType=TIMESTAMP},#{item.status,jdbcType=BIT})  
+    </foreach> 
+  </insert>
+  
+  <!-- 新增可改装SKU属性 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.EcNeckSku" >
+    insert into ec_neck_sku
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="spuId != null" >
+        spu_id,
+      </if>
+      <if test="spuCode != null" >
+        spu_code,
+      </if>
+      <if test="skuCode != null" >
+        sku_code,
+      </if>
+      <if test="skuName != null" >
+        sku_name,
+      </if>
+      <if test="salePrice != null" >
+        sale_price,
+      </if>
+      <if test="picKey != null" >
+        pic_key,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="spuId != null" >
+        #{spuId,jdbcType=VARCHAR},
+      </if>
+      <if test="spuCode != null" >
+        #{spuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="skuCode != null" >
+        #{skuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="skuName != null" >
+        #{skuName,jdbcType=VARCHAR},
+      </if>
+      <if test="salePrice != null" >
+        #{salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="picKey != null" >
+        #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据参数修改 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.EcNeckSku" >
+    update ec_neck_sku
+    <set >
+      <if test="spuId != null" >
+        spu_id = #{spuId,jdbcType=VARCHAR},
+      </if>
+      <if test="spuCode != null" >
+        spu_code = #{spuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="skuCode != null" >
+        sku_code = #{skuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="skuName != null" >
+        sku_name = #{skuName,jdbcType=VARCHAR},
+      </if>
+      <if test="salePrice != null" >
+        sale_price = #{salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="picKey != null" >
+        pic_key = #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

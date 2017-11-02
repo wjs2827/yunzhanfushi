@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.wmeimob</groupId>
+		<artifactId>yzfs</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<artifactId>yzfs-weixin</artifactId>
+	<packaging>war</packaging>
+	<name>yzfs-weixin</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>javax.servlet.jsp-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>yzfs-core</artifactId>
+		</dependency>
+		
+		<dependency>
+				<groupId>org.codehaus.jackson</groupId>
+				<artifactId>jackson-core-asl</artifactId>
+				<version>1.8.5</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.jackson</groupId>
+				<artifactId>jackson-mapper-asl</artifactId>
+				<version>1.8.5</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.jackson</groupId>
+				<artifactId>jackson-smile</artifactId>
+				<version>1.6.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>fastjson</artifactId>
+				<version>1.1.40</version>
+			</dependency>
+		    
+		    <!-- 前后端跨域依赖包 -->
+			<dependency>
+			    <groupId>com.thetransactioncompany</groupId>
+			    <artifactId>java-property-utils</artifactId>
+			    <version>1.10</version>
+			</dependency>
+		    
+	        <dependency>  
+	            <groupId>com.thetransactioncompany</groupId>  
+	            <artifactId>cors-filter</artifactId>  
+	            <version>2.5</version>  
+	        </dependency> 
+			<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+			<dependency>
+			    <groupId>org.apache.httpcomponents</groupId>
+			    <artifactId>httpclient</artifactId>
+			    <version>4.5.3</version>
+			</dependency>
+			<dependency>
+			    <groupId>com.aliyun</groupId>
+			    <artifactId>aliyun-java-sdk-core</artifactId>
+			    <version>3.2.3</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>com.aliyun</groupId>
+			    <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
+			    <version>1.0.0-SANPSHOT</version>
+			</dependency>
+	</dependencies>
+	<build>
+		<finalName>yzfs-weixin</finalName>
+	</build>
+</project>

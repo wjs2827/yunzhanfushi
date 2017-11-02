@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.EcGoodSkuMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.EcGoodSku" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="spu_id" property="spuId" jdbcType="VARCHAR" />
+    <result column="spu_code" property="spuCode" jdbcType="VARCHAR" />
+    <result column="sku_code" property="skuCode" jdbcType="VARCHAR" />
+    <result column="sku_name" property="skuName" jdbcType="VARCHAR" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="market_price" property="marketPrice" jdbcType="DECIMAL" />
+    <result column="pic_key" property="picKey" jdbcType="VARCHAR" />
+    <result column="stock_count" property="stockCount" jdbcType="INTEGER" />
+    <result column="lock_count" property="lockCount" jdbcType="INTEGER" />
+    <result column="sale_count" property="saleCount" jdbcType="INTEGER" />
+    <result column="weight" property="weight" jdbcType="DECIMAL" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="is_used" property="isUsed" jdbcType="BIT" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, spu_id, spu_code, sku_code, sku_name, price,market_price, pic_key, stock_count, lock_count, 
+    sale_count, weight, created_at, updated_at, is_used, status
+  </sql>
+  
+  <!-- 根据商品ID查询商品SKU列表 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from ec_good_sku
+    where spu_id = #{spuId}
+    and status=1
+  </select>
+  
+    
+  <!-- 根据SKU编码查询商品SKU -->
+  <select id="queryGoodSkuBySkuCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from ec_good_sku
+    where sku_code = #{skuCode}
+    and spu_id = #{spuId}
+  </select>
+  
+  <!-- 根据商品ID删除SKU规格属性 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from ec_good_sku
+    where spu_id = #{spuId,jdbcType=VARCHAR}
+  </delete>
+  
+  <!-- 批量新增KSU属性值 -->
+  <insert id="insertBatch"  parameterType="java.util.List">
+    insert into ec_good_sku (spu_id, spu_code, 
+      sku_code, sku_name, price, 
+      market_price, pic_key, stock_count, 
+      lock_count, sale_count, weight, 
+      created_at, updated_at, is_used, 
+      status)
+      values 
+    <foreach collection="list" item="item" index="index" separator=","  >  
+      (
+	      #{item.spuId,jdbcType=VARCHAR}, #{item.spuCode,jdbcType=VARCHAR}, 
+	      #{item.skuCode,jdbcType=VARCHAR}, #{item.skuName,jdbcType=VARCHAR}, #{item.price,jdbcType=DECIMAL}, 
+	      #{item.marketPrice,jdbcType=DECIMAL}, #{item.picKey,jdbcType=VARCHAR}, #{item.stockCount,jdbcType=INTEGER}, 
+	     0, 0, 0, 
+	      #{item.createdAt,jdbcType=TIMESTAMP}, #{item.updatedAt,jdbcType=TIMESTAMP}, 1, 1
+      ) 
+    </foreach> 
+  </insert>
+  
+  <!-- 单独新增KSU属性值 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.EcGoodSku" >
+    insert into ec_good_sku
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="spuId != null" >
+        spu_id,
+      </if>
+      <if test="spuCode != null" >
+        spu_code,
+      </if>
+      <if test="skuCode != null" >
+        sku_code,
+      </if>
+      <if test="skuName != null" >
+        sku_name,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="marketPrice != null" >
+        market_price,
+      </if>
+      <if test="picKey != null" >
+        pic_key,
+      </if>
+      <if test="stockCount != null" >
+        stock_count,
+      </if>
+      <if test="lockCount != null" >
+        lock_count,
+      </if>
+      <if test="saleCount != null" >
+        sale_count,
+      </if>
+      <if test="weight != null" >
+        weight,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="isUsed != null" >
+        is_used,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="spuId != null" >
+        #{spuId,jdbcType=VARCHAR},
+      </if>
+      <if test="spuCode != null" >
+        #{spuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="skuCode != null" >
+        #{skuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="skuName != null" >
+        #{skuName,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="marketPrice != null" >
+        #{marketPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="picKey != null" >
+        #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="stockCount != null" >
+        #{stockCount,jdbcType=INTEGER},
+      </if>
+      <if test="lockCount != null" >
+        #{lockCount,jdbcType=INTEGER},
+      </if>
+      <if test="saleCount != null" >
+        #{saleCount,jdbcType=INTEGER},
+      </if>
+      <if test="weight != null" >
+        #{weight,jdbcType=DECIMAL},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isUsed != null" >
+        #{isUsed,jdbcType=BIT},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 修改商品SKU规格 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.EcGoodSku" >
+    update ec_good_sku
+    <set >
+      <if test="spuCode != null" >
+        spu_code = #{spuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="skuCode != null" >
+        sku_code = #{skuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="skuName != null" >
+        sku_name = #{skuName,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="marketPrice != null" >
+        market_price=#{marketPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="picKey != null" >
+        pic_key = #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="stockCount != null" >
+        stock_count = #{stockCount,jdbcType=INTEGER},
+      </if>
+      <if test="lockCount != null" >
+        lock_count = #{lockCount,jdbcType=INTEGER},
+      </if>
+      <if test="saleCount != null" >
+        sale_count = #{saleCount,jdbcType=INTEGER},
+      </if>
+      <if test="weight != null" >
+        weight = #{weight,jdbcType=DECIMAL},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isUsed != null" >
+        is_used = #{isUsed,jdbcType=BIT},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <!-- WX根据SKU_CODE和商品ID修改 -->
+  <update id="updateBySkuStockByParams" parameterType="com.wmeimob.yzfs.model.EcGoodSku" >
+    update ec_good_sku
+    <set >
+      <if test="lockCount != null" >
+        lock_count = #{lockCount,jdbcType=INTEGER},
+      </if>
+      <if test="saleCount != null" >
+        sale_count = #{saleCount,jdbcType=INTEGER},
+      </if>
+    </set>
+    where 
+    spu_id = #{spuId,jdbcType=VARCHAR}
+    and sku_code = #{skuCode,jdbcType=VARCHAR}
+  </update>
+  
+</mapper>

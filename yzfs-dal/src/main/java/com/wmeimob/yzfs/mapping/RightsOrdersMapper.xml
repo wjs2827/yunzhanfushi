@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.RightsOrdersMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.RightsOrders" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="order_item_id" property="orderItemId" jdbcType="VARCHAR" />
+    <result column="rights_order_no" property="rightsOrderNo" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="BIT" />
+    <result column="audit_at" property="returnAt" jdbcType="TIMESTAMP" />
+    <result column="return_at" property="returnAt" jdbcType="TIMESTAMP" />
+    <result column="reject_reason" property="rejectReason" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, order_item_id, rights_order_no, created_at, updated_at, remark, type,audit_at,return_at,reject_reason, status
+  </sql>
+  
+  <!-- 查询维权订单列表 -->
+   <select id="selectByPrimaryKey" resultType="com.wmeimob.yzfs.vo.RightsOrdersVO" parameterType="com.wmeimob.yzfs.vo.RightsOrdersVO" >
+	  select 
+	       ro.id,
+	       ro.order_item_id orderItemId,
+	       ro.rights_order_no  rightsOrderNo,
+	       ro.type,
+	       date_format(ro.created_at,'%Y-%m-%d %T') createdAt,
+	       ro.remark,
+	       g.name goodName,
+	       oi.sale_price salePrice,
+	       oi.quantity,
+	       ifnull(ifnull(oi.quantity,0)*ifnull(oi.sale_price,0)+ifnull(oi.fare_price,0),0) returnAmount,
+	       oi.refunds_status refundsStatus,
+	       o.order_status orderStatus,
+	       s.order_item_sku_name  skuProperties,
+	       s.pic_key picKey,
+	       n.order_item_sku_name neckProperties,
+	       u.nick_name nickName
+		from rights_orders ro
+		left join order_items oi on ro.order_item_id=oi.id
+		left join order_item_sku s on oi.good_spec_id=s.id
+		left join order_item_sku  n on oi.good_neck_id=n.id
+		left join ec_goods g on oi.good_id=g.id
+		left join orders o on oi.container_id=o.id 
+		left join users u on o.owner_id=u.id
+		where 1=1
+		and ro.status=1
+	    <if test="startTime != null and startTime != ''">
+	        and date_format(ro.created_at,'%Y-%m-%d') &gt;= #{startTime}
+	    </if>
+	    <if test="endTime != null and endTime != '' ">
+	        and date_format(ro.created_at,'%Y-%m-%d') &lt;= #{endTime}
+	    </if>
+	    <if test="type != null and type != ''">
+	        and ro.type=#{type,jdbcType=BIT}
+	    </if>
+	    <if test="refundsStatus!=-1 " >
+	     and oi.refunds_status=#{refundsStatus,jdbcType=INTEGER}
+	    </if>
+	    <if test="classId != null and classId !='' " >
+	        and g.classes_id=#{classId,jdbcType=VARCHAR}
+	    </if>
+	    <if test="goodName != null and goodName !='' " >
+	        and g.name like '%${goodName}%'
+	        or ro.rights_order_no like '%${goodName}%'
+	    </if>
+        group by ro.id
+   </select>
+   
+   <select id="selectByOrderItemId" resultType="com.wmeimob.yzfs.vo.RightsOrdersVO" parameterType="com.wmeimob.yzfs.model.RightsOrders" >
+   select id, order_item_id, rights_order_no, created_at, updated_at, remark, type,audit_at,return_at,reject_reason, status
+   from rights_orders
+   where order_item_id = #{ID}
+   </select>
+   
+   <!-- WX查询维权订单列表 -->
+   <select id="queryRightsOrderList" resultType="com.wmeimob.yzfs.vo.RightsOrdersVO" parameterType="com.wmeimob.yzfs.vo.RightsOrdersVO" >
+	  select 
+	       ro.id,
+	       ro.rights_order_no  rightsOrderNo,
+	       ro.type,
+	       date_format(ro.created_at,'%Y-%m-%d %T') createdAt,
+	       ro.remark,
+	       g.name goodName,
+	       oi.sale_price salePrice,
+	       oi.quantity,
+	       ifnull(ifnull(oi.quantity,0)*ifnull(oi.sale_price,0)+ifnull(oi.fare_price,0),0) returnAmount,
+	       oi.refunds_status refundsStatus,
+	       o.order_status orderStatus,
+	       sku.order_item_sku_name skuName,
+	       sku.pic_key picKey,
+	       u.nick_name nickName
+		from rights_orders ro
+		left join order_items oi on ro.order_item_id=oi.id
+		left join order_item_sku sku on oi.good_spec_id=sku.id
+		left join ec_goods g on oi.good_id=g.id
+		left join orders o on oi.container_id=o.id 
+		left join users u on o.owner_id=u.id
+		where 1=1
+		and ro.status=1
+		and o.owner_id=#{userId}
+        group by ro.created_at desc
+        limit #{pageIndex},#{pageSize}
+   </select>
+   
+   <!-- 根据ID查询维权订单明细以及退款处理进度 -->
+   <select id="selectByPrimaryKeyById" resultType="com.wmeimob.yzfs.vo.RightsOrdersVO" parameterType="java.lang.String" >
+	  select 
+	       ro.id,
+	       ro.rights_order_no  rightsOrderNo,
+	       ro.type,
+	       ro.created_at  createdAt,
+           ro.audit_at auditAt,
+           ro.return_at returnAt,
+           ro.remark,
+           ro.reject_reason rejectReason,
+	       g.name goodName,
+	       oi.sale_price salePrice,
+	       oi.quantity,
+	       oi.sale_price*oi.quantity returnAmount,
+	       oi.refunds_status refundsStatus,
+	       s.order_item_sku_name  skuProperties,
+	       s.pic_key picKey,
+	       n.order_item_sku_name neckProperties,
+	       u.nick_name nickName,
+           o.order_no orderNo,
+           o.created_at orderTime,
+           o.pay_at payTime,
+           o.shipping_at shippingAt,
+           o.receipt_at  receiptAt,
+           o.shipping_no shippingNo,
+           o.shipping_vendor shippingVendor,
+           o.user_comments userComments,
+           o.shipping_name shippingName,
+           o.mobile,
+           o.order_amount ordreAmount,
+           o.shipping_fee shippingFee,
+           o.pay_points payPoints,
+           o.pay_amount payAmount,
+		   (select a.name from area a where a.id = o.shipping_province and a.lv=1) pName,
+		   (select a.name from area a where a.id = o.shipping_city and a.lv=2) dName,
+		   (select a.name from area a where a.id = o.shipping_district and a.lv=3) cName,
+		   o.shipping_address shippingAddress
+		from rights_orders ro
+		left join order_items oi on ro.order_item_id=oi.id
+		left join order_item_sku s on oi.good_spec_id=s.id
+		left join order_item_sku  n on oi.good_neck_id=n.id
+		left join ec_goods g on oi.good_id=g.id
+		left join orders o on oi.container_id=o.id 
+		left join users u on o.owner_id=u.id
+		where 1=1
+		and ro.status=1
+		and ro.id=#{ID}
+   </select>
+   
+   <!-- 新增维权订单信息 -->
+   <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.RightsOrders" useGeneratedKeys="true" keyProperty="id">
+    insert into rights_orders
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderItemId != null" >
+        order_item_id,
+      </if>
+      <if test="rightsOrderNo != null" >
+        rights_order_no,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderItemId != null" >
+        #{orderItemId,jdbcType=VARCHAR},
+      </if>
+      <if test="rightsOrderNo != null" >
+        #{rightsOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=BIT},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 修改维权订单信息用于取消维权 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.RightsOrders" >
+    update rights_orders
+    <set >
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

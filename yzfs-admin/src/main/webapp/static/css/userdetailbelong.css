@@ -1,0 +1,144 @@
+.portlet-body-title {
+	background: #fff;
+	padding: 20px;
+}
+
+.portlet-body-title ul {
+	height: 40px;
+	border: 1px solid #ddd;
+}
+
+.portlet-body-title li {
+	list-style: none;
+	width: 16.6%;
+	float: left;
+	text-align: center;
+	line-height: 40px;
+	border-left: 1px solid #ddd
+}
+
+.portlet-body-title li.check {
+	background: #fd9825;
+	color: #fff;
+}
+
+.label_one {
+	text-align: left !important;
+	margin-left: 10px;
+}
+
+.form-horizontal {
+	margin: 0 10%;
+}
+
+.form-horizontal .left {
+	width: 50%;
+	float: left
+}
+
+.form-horizontal .right {
+	width: 50%;
+	float: right
+}
+
+.clearfix:after {
+	visibility: hidden;
+	display: block;
+	font-size: 0;
+	content: " ";
+	clear: both;
+	height: 0;
+}
+
+.clearfix {
+	*zoom: 1;
+}
+
+.form-horizontal .control-group {
+	margin-bottom: 10px;
+}
+
+.xltime {
+	border: 1px solid #ddd;
+	border-bottom: none;
+	margin-bottom: 0 !important;
+	line-height: 40px;
+	padding-left: 10px;
+}
+
+.form-horizontal .control-label {
+	text-align: left
+}
+
+.form-horizontal p {
+	margin-bottom: 20px;
+	color: #716a6a
+}
+
+.current-file {
+	position: absolute;
+	height: 40px;
+	background: #fd9825;
+	color: #fff;
+	width: 200px;
+	line-height: 40px;
+	text-align: center
+}
+
+.picScroll-left {
+	width: 350px;
+	position: absolute;
+	border: 1px solid #ccc;
+	left: 20%;
+}
+
+.picScroll-left .hd {
+	overflow: hidden;
+}
+
+.picScroll-left .hd .prev, .picScroll-left .hd .next {
+	display: block;
+	width: 20px;
+	height: 20px;
+	overflow: hidden;
+	cursor: pointer;
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.picScroll-left .hd .prev {
+	position: absolute;
+	left: -30px;
+	top: 8px;
+}
+
+.picScroll-left .hd .next {
+	position: absolute;
+	right: -30px;
+	top: 8px;
+}
+
+.picScroll-left .bd {
+	height: 40px;
+	overflow: hidden;
+	width: 100%;
+}
+
+.picScroll-left .bd ul {
+	overflow: hidden;
+	zoom: 1;
+}
+
+.picScroll-left .bd ul li {
+	margin: 0 8px;
+	float: left;
+	_display: inline;
+	line-height: 40px;
+	overflow: hidden;
+	text-align: center;
+	width: 100px;
+}
+
+.picScroll-left .bd ul li.active {
+	color: #fd9825
+}

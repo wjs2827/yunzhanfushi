@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.RechargeRulesMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.RechargeRules" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="recharge_amount" property="rechargeAmount" jdbcType="DECIMAL" />
+    <result column="attach_amount" property="attachAmount" jdbcType="DECIMAL" />
+    <result column="commission_rate" property="commissionRate" jdbcType="DECIMAL" />
+    <result column="is_used" property="isUsed" jdbcType="BIT" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <!-- 公用的SQL语句 -->
+  <sql id="Base_Column_List" >
+    id, remark, recharge_amount rechargeAmount, attach_amount attachAmount, commission_rate commissionRate,
+     is_used isUsed, created_at createdAt, updated_at updatedAt, status
+  </sql>
+  <!-- 查询规则信息SQL -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from recharge_rules
+    where 1=1 and status=1
+    <if test="id !=null and id !='' ">
+     and id = #{id,jdbcType=VARCHAR}
+    </if>
+  </select>
+  <!-- 新增规则信息 -->
+  <insert id="insert" parameterType="com.wmeimob.yzfs.model.RechargeRules" >
+    insert into recharge_rules (id, remark, recharge_amount, 
+      attach_amount, commission_rate, is_used, 
+      created_at, updated_at, status
+      )
+    values (uuid(), #{remark,jdbcType=VARCHAR}, #{rechargeAmount,jdbcType=DECIMAL}, 
+      #{attachAmount,jdbcType=DECIMAL}, #{commissionRate,jdbcType=DECIMAL},1, 
+      SYSDATE(), SYSDATE(), 1
+      )
+  </insert>
+  <!-- 修改规则信息 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.RechargeRules" >
+    update recharge_rules
+    <set >
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="rechargeAmount != null" >
+        recharge_amount = #{rechargeAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="attachAmount != null" >
+        attach_amount = #{attachAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="commissionRate != null" >
+        commission_rate = #{commissionRate,jdbcType=DECIMAL},
+      </if>
+      <if test="isUsed != null" >
+        is_used = #{isUsed,jdbcType=BIT},
+      </if>
+        updated_at = SYSDATE(),
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+   <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.RechargeRules" >
+    insert into recharge_rules
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="rechargeAmount != null" >
+        recharge_amount,
+      </if>
+      <if test="attachAmount != null" >
+        attach_amount,
+      </if>
+      <if test="commissionRate != null" >
+        commission_rate,
+      </if>
+      <if test="isUsed != null" >
+        is_used,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="rechargeAmount != null" >
+        #{rechargeAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="attachAmount != null" >
+        #{attachAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="commissionRate != null" >
+        #{commissionRate,jdbcType=DECIMAL},
+      </if>
+      <if test="isUsed != null" >
+        #{isUsed,jdbcType=BIT},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据ID查询充值套餐 -->
+    <select id="selectByRuleId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from recharge_rules
+    where id = #{id,jdbcType=VARCHAR}
+    and is_used=1
+    and status=1
+    limit 0,1
+  </select>
+</mapper>

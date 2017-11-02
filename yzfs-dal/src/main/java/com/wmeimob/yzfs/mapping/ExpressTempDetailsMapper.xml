@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.ExpressTempDetailsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.ExpressTempDetails" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="temp_id" property="tempId" jdbcType="INTEGER" />
+    <result column="first_num" property="firstNum" jdbcType="DECIMAL" />
+    <result column="first_price" property="firstPrice" jdbcType="DECIMAL" />
+    <result column="next_num" property="nextNum" jdbcType="DECIMAL" />
+    <result column="next_price" property="nextPrice" jdbcType="DECIMAL" />
+    <result column="areaIdList" property="areaIdList" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.wmeimob.yzfs.model.ExpressTempDetails" extends="BaseResultMap" >
+    <result column="areaNameList" property="areaNameList" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, temp_id, first_num, first_price, next_num, next_price, areaIdList, created_at, 
+    updated_at, is_deleted
+  </sql>
+  <sql id="Blob_Column_List" >
+    areaNameList
+  </sql>
+  
+  <!-- 批量新增运费模板信息列表 -->
+  <insert id="insertBatch"  parameterType="java.util.List">
+    insert into ec_neck_sku (temp_id, first_num, first_price, next_num, next_price,areaIdList,areaNameList, created_at, updated_at,is_deleted)
+    values  
+    <foreach collection="list" item="item" index="index" separator=","  >  
+      (
+       #{item.tempId,jdbcType=INTEGER}, #{item.firstNum,jdbcType=DECIMAL}, 
+       #{item.firstPrice,jdbcType=DECIMAL}, #{item.nextNum,jdbcType=DECIMAL}, #{item.nextPrice,jdbcType=DECIMAL},
+       #{areaIdList,jdbcType=VARCHAR},#{areaNameList,jdbcType=LONGVARCHAR}, 
+       #{item.createdAt,jdbcType=TIMESTAMP}, #{item.updatedAt,jdbcType=TIMESTAMP}, #{item.isDeleted,jdbcType=BIT}
+      ) 
+    </foreach> 
+  </insert>
+  
+  <!-- 根据运费模板ID查询所有运费信息详情 -->
+  <select id="selectByPrimaryKeyList" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+       <include refid="Base_Column_List" />
+       ,
+       <include refid="Blob_Column_List" />
+    from express_temp_details
+    where 1=1
+    <if test="id != null and id !='' " >
+      and temp_id = #{id,jdbcType=INTEGER}
+    </if>
+    order by id
+  </select>
+  
+    
+  <!-- 根据运费模板详情ID查询所有运费信息详情 -->
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from express_temp_details
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 根据运费详情ID删除运费信息 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from express_temp_details where id !=#{id}
+  </delete>
+  
+  <!-- 单个新增运费详情信息 -->
+ <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.ExpressTempDetails" useGeneratedKeys="true" keyProperty="id">
+    insert into express_temp_details
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="tempId != null" >
+        temp_id,
+      </if>
+      <if test="firstNum != null" >
+        first_num,
+      </if>
+      <if test="firstPrice != null" >
+        first_price,
+      </if>
+      <if test="nextNum != null" >
+        next_num,
+      </if>
+      <if test="nextPrice != null" >
+        next_price,
+      </if>
+      <if test="areaIdList != null" >
+        areaIdList,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="areaNameList != null" >
+        areaNameList,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="tempId != null" >
+        #{tempId,jdbcType=INTEGER},
+      </if>
+      <if test="firstNum != null" >
+        #{firstNum,jdbcType=DECIMAL},
+      </if>
+      <if test="firstPrice != null" >
+        #{firstPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="nextNum != null" >
+        #{nextNum,jdbcType=DECIMAL},
+      </if>
+      <if test="nextPrice != null" >
+        #{nextPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="areaIdList != null" >
+        #{areaIdList,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=BIT},
+      </if>
+      <if test="areaNameList != null" >
+        #{areaNameList,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据运费详情信息编辑 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.ExpressTempDetails" >
+    update express_temp_details
+    <set >
+      <if test="tempId != null" >
+        temp_id = #{tempId,jdbcType=INTEGER},
+      </if>
+      <if test="firstNum != null" >
+        first_num = #{firstNum,jdbcType=DECIMAL},
+      </if>
+      <if test="firstPrice != null" >
+        first_price = #{firstPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="nextNum != null" >
+        next_num = #{nextNum,jdbcType=DECIMAL},
+      </if>
+      <if test="nextPrice != null" >
+        next_price = #{nextPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="areaIdList != null" >
+        areaIdList = #{areaIdList,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=BIT},
+      </if>
+      <if test="areaNameList != null" >
+        areaNameList = #{areaNameList,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

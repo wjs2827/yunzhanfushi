@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.ReadingRewardsMapper" >
+  <!-- 阅读任务map -->
+  <resultMap id="ReadBaseResultMap" type="com.wmeimob.yzfs.model.ReadingRewards" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="link" property="link" jdbcType="VARCHAR" />
+    <result column="is_use" property="isUse" jdbcType="BIT" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
+  </resultMap>
+  
+  <!-- 根据参数查询多条阅读任务信息信息 -->
+  <select id="queryReadingRewardsListByParams" parameterType="com.wmeimob.yzfs.model.ReadingRewards" resultType="com.wmeimob.yzfs.vo.ReadingRewardsVO">
+	select  
+		r.id,
+		r.title,
+		r.link,
+		ifnull(r.is_use,0) isUse,
+		ifnull(r.is_deleted,0) isDeleted,
+	    (
+	     select record.open_id from reading_rewards_record record 
+	     where record.reading_rewards_id=r.id
+	     and record.open_id=#{openId,jdbcType=VARCHAR} 
+	    ) openId,
+	    date_format(r.created_at,'%Y-%m-%d %T') createdAt
+	from reading_rewards r
+	where 1=1
+	and r.is_deleted=1
+    <if test="title != null" >
+      and r.title  like '%${title}%'
+    </if>
+   	<if test="startTime != null and endTime == null ">
+	   and date_format(r.created_at,'%Y-%m-%d')  &gt;= #{startTime,jdbcType=TIMESTAMP}
+	</if >
+	<if test="endTime != null and startTime == null ">
+	   and date_format(r.created_at,'%Y-%m-%d')   &lt;=  #{endTime,jdbcType=TIMESTAMP}
+	</if>
+	<if test="endTime != null and startTime != null ">
+	   and date_format(r.created_at,'%Y-%m-%d')  &gt;= #{startTime,jdbcType=TIMESTAMP}
+	   and date_format(r.created_at,'%Y-%m-%d')   &lt;=  #{endTime,jdbcType=TIMESTAMP}
+	</if>
+  </select>
+  
+  <!-- 根据参数查询单个阅读任务信息信息 -->
+  <select id="queryReadingRewardsByParams" parameterType="com.wmeimob.yzfs.model.ReadingRewards" resultType="com.wmeimob.yzfs.vo.ReadingRewardsVO">
+	select  
+		r.id,
+		r.title,
+		r.link,
+		ifnull(r.is_use,0) isUse,
+		ifnull(r.is_deleted,0) isDeleted
+	from reading_rewards r
+	where 1=1
+	and r.is_deleted=1
+    <if test="id != null" >
+      and r.id = #{id,jdbcType=VARCHAR}
+    </if>
+  </select>
+  
+  <!-- 新增阅读任务信息 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.ReadingRewards">
+    insert into reading_rewards
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="link != null" >
+        link,
+      </if>
+      <if test="isUse != null" >
+        is_use,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="link != null" >
+        #{link,jdbcType=VARCHAR},
+      </if>
+      <if test="isUse != null" >
+        #{isUse,jdbcType=BIT},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  <!--根据参数修改阅读任务信息 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.ReadingRewards" >
+    update reading_rewards
+    <set>
+      <if test="title != null" >
+        title=#{title,jdbcType=VARCHAR},
+      </if>
+      <if test="link != null" >
+        link=#{link,jdbcType=VARCHAR},
+      </if>
+      <if test="isUse != null" >
+        is_use=#{isUse,jdbcType=BIT},
+      </if>
+      <if test="createdAt != null" >
+        created_at=#{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at=#{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted=#{isDeleted,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 阅读记录map -->
+  <resultMap id="RecordBaseResultMap" type="com.wmeimob.yzfs.model.ReadingRewardsRecord" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="reading_rewards_id" property="readingRewardsId" jdbcType="VARCHAR" />
+    <result column="open_id" property="openId" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
+    <result column="get_points" property="getPoints" jdbcType="INTEGER" />
+    <result column="super_open_id" property="superOpenId" jdbcType="VARCHAR" />
+    <result column="super_nick_name" property="superNickName" jdbcType="VARCHAR" />
+    <result column="super_get_points" property="superGetPoints" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  
+  <!-- 新增阅读记录信息 -->
+  <insert id="insertSelectiveReadRecord" parameterType="com.wmeimob.yzfs.model.ReadingRewardsRecord" >
+    insert into reading_rewards_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="readingRewardsId != null" >
+        reading_rewards_id,
+      </if>
+      <if test="openId != null" >
+        open_id,
+      </if>
+       <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="nickName != null" >
+        nick_name,
+      </if>
+      <if test="getPoints != null" >
+        get_points,
+      </if>
+      <if test="superOpenId != null" >
+        super_open_id,
+      </if>
+      <if test="superNickName != null" >
+        super_nick_name,
+      </if>
+      <if test="superGetPoints != null" >
+        super_get_points,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="readingRewardsId != null" >
+        #{readingRewardsId,jdbcType=VARCHAR},
+      </if>
+      <if test="openId != null" >
+        #{openId,jdbcType=VARCHAR},
+      </if>
+       <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null" >
+        #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="getPoints != null" >
+        #{getPoints,jdbcType=INTEGER},
+      </if>
+      <if test="superOpenId != null" >
+        #{superOpenId,jdbcType=VARCHAR},
+      </if>
+      <if test="superNickName != null" >
+        #{superNickName,jdbcType=VARCHAR},
+      </if>
+      <if test="superGetPoints != null" >
+        #{superGetPoints,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据参数查询多条阅读记录信息 -->
+  <select id="queryReadingRewardsRecordListByParams" parameterType="com.wmeimob.yzfs.model.ReadingRewardsRecord" resultType="com.wmeimob.yzfs.vo.ReadingRewardsRecordVO">
+		select 
+			date_format(record.created_at,'%Y-%m-%d %T') createdAt,
+			r.title,
+			record.nick_name nickName,
+			record.reading_rewards_id readingRewardsId,
+			record.open_id openId,
+			ifnull(record.get_points,0) getPoints,
+			record.super_open_id superOpenId,
+			record.super_nick_name superNickName,
+			record.super_get_points superGetPoints
+		from reading_rewards_record record 
+		left join reading_rewards r on record.reading_rewards_id=r.id
+		where 1=1
+		and record.status=1
+		and r.is_deleted=1
+        <if test="title != null ">
+            and record.title like '%${title}%'
+        </if>
+        <if test="nickName != null ">
+            and record.nick_name like '%${nickName}%'
+        </if>
+		<if test="startTime != null and endTime == null ">
+		   and date_format(record.created_at,'%Y-%m-%d')  &gt;= #{startTime,jdbcType=TIMESTAMP}
+		</if >
+		<if test="endTime != null and startTime == null ">
+		   and date_format(record.created_at,'%Y-%m-%d')   &lt;=  #{endTime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTime != null and startTime != null ">
+		   and date_format(record.created_at,'%Y-%m-%d')  &gt;= #{startTime,jdbcType=TIMESTAMP}
+		   and date_format(record.created_at,'%Y-%m-%d')   &lt;=  #{endTime,jdbcType=TIMESTAMP}
+		</if>
+	     <if test="openId != null">
+           and record.open_id=#{openId,jdbcType=VARCHAR}
+         </if>
+         <if test="readingRewardsId != null" >
+           and record.reading_rewards_id=#{readingRewardsId,jdbcType=VARCHAR}
+         </if>
+         <if test="isToday ==1 " >
+           and DATE(created_at)=DATE(NOW())
+         </if>
+  </select>
+
+
+    <!-- 微信 查询阅读列表 -->
+	<select id="selectReadListByOpenId" resultType="com.wmeimob.yzfs.vo.ReadingRewardsVO">
+		SELECT
+		r.id,
+		r.link,
+		r.title,
+		r.created_at createdAt,
+		(select count(id) from reading_rewards_record rr where
+		rr.reading_rewards_id=r.id and DATE(created_at)=DATE(NOW()) and rr.open_id= #{openId,jdbcType=VARCHAR}) isRead
+		from reading_rewards r
+		where r.is_deleted=1 and r.is_use=1
+	</select>
+  
+  
+   <!-- 查询当天的阅读记录 -->
+  <select id="queryReadingRewardsRecordListToday" parameterType="com.wmeimob.yzfs.model.ReadingRewardsRecord" resultType="com.wmeimob.yzfs.vo.ReadingRewardsRecordVO">
+		select 
+			date_format(record.created_at,'%Y-%m-%d %T') createdAt,
+			r.title,
+			record.nick_name nickName,
+			record.reading_rewards_id readingRewardsId,
+			record.open_id openId,
+			ifnull(record.get_points,0) getPoints,
+			record.super_open_id superOpenId,
+			record.super_nick_name superNickName,
+			record.super_get_points superGetPoints
+		from reading_rewards_record record 
+		left join reading_rewards r on record.reading_rewards_id=r.id
+		where 1=1
+		and record.status=1
+		and r.is_deleted=1
+	     <if test="openId != null">
+           and record.open_id=#{openId,jdbcType=VARCHAR}
+         </if>
+         <if test="readingRewardsId != null" >
+           and record.reading_rewards_id=#{readingRewardsId,jdbcType=VARCHAR}
+         </if>
+         <if test="isToday ==1 ">
+           and DATE(record.created_at)=DATE(NOW())
+         </if>
+  </select>
+  
+</mapper>

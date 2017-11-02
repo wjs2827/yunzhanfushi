@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.UserCardLogsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.UserCardLogs" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_card_id" property="userCardId" jdbcType="INTEGER" />
+    <result column="record_type" property="recordType" jdbcType="TINYINT" />
+    <result column="change_type" property="changeType" jdbcType="VARCHAR" />
+    <result column="order_id" property="orderId" jdbcType="VARCHAR" />
+    <result column="change_note" property="changeNote" jdbcType="VARCHAR" />
+    <result column="changed_at" property="changedAt" jdbcType="TIMESTAMP" />
+    <result column="change_points" property="changePoints" jdbcType="INTEGER" />
+    <result column="account_points" property="accountPoints" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_card_id, record_type, change_type, order_id, change_note, changed_at, change_points, 
+    account_points, created_at, updated_at, status
+  </sql>
+  
+  <!--查询积分记录列表  -->
+  <select id="selectByPrimaryKey" resultType="com.wmeimob.yzfs.vo.UserCardLogsVO" parameterType="com.wmeimob.yzfs.vo.UserCardLogsVO" >
+	select 
+		u.id userId,
+		u.nick_name nickName,
+		u.mobile,
+		ucl.record_type recordType,
+		ucl.change_points changePoints,
+		ucl.change_note changeNote,
+		ucl.account_points accountPoints,
+		ucl.updated_at updatedAt
+	from user_card_logs ucl
+	left join user_cards uc on ucl.user_card_id=uc.id
+	left join users u on uc.user_id=u.id
+	<where>
+	  ucl.status=1
+	  and uc.status=1
+	  and u.status=1
+      <if test="startTime != null and startTime != ''">
+        and date_format(ucl.updated_at,'%Y-%m-%d') &gt;= #{startTime}
+      </if>
+      <if test="endTime != null and endTime != '' ">
+        and date_format(ucl.updated_at,'%Y-%m-%d') &lt;= #{endTime}
+      </if>
+      <if test="nickName != null and nickName != '' ">
+        and (u.nick_name like '%${nickName}%'
+        or u.mobile like '%${nickName}%')
+      </if>
+	</where>
+  </select>
+  
+  
+  <!--WX查询积分记录列表  -->
+  <select id="myCardLogRecord" resultType="com.wmeimob.yzfs.vo.UserCardLogsVO" parameterType="com.wmeimob.yzfs.vo.UserCardLogsVO" >
+	select 
+		uc.id,
+		ucl.record_type recordType,
+		ucl.change_points changePoints,
+		ucl.change_note changeNote,
+		ucl.account_points accountPoints,
+		date_format(ucl.created_at,'%Y-%m-%d %T') createdTime,
+		ucl.updated_at updatedAt
+	from user_card_logs ucl
+	left join user_cards uc on ucl.user_card_id=uc.id
+	<where>
+	  ucl.status=1
+	  and uc.status=1
+	  and uc.user_id=#{userId}
+	</where>
+  </select>
+  
+  <!-- 新增积分记录  -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.UserCardLogs" >
+    insert into user_card_logs
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userCardId != null" >
+        user_card_id,
+      </if>
+      <if test="recordType != null" >
+        record_type,
+      </if>
+      <if test="changeType != null" >
+        change_type,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="changeNote != null" >
+        change_note,
+      </if>
+      <if test="changedAt != null" >
+        changed_at,
+      </if>
+      <if test="changePoints != null" >
+        change_points,
+      </if>
+      <if test="accountPoints != null" >
+        account_points,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userCardId != null" >
+        #{userCardId,jdbcType=VARCHAR},
+      </if>
+      <if test="recordType != null" >
+        #{recordType,jdbcType=TINYINT},
+      </if>
+      <if test="changeType != null" >
+        #{changeType,jdbcType=VARCHAR},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="changeNote != null" >
+        #{changeNote,jdbcType=VARCHAR},
+      </if>
+      <if test="changedAt != null" >
+        #{changedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="changePoints != null" >
+        #{changePoints,jdbcType=INTEGER},
+      </if>
+      <if test="accountPoints != null" >
+        #{accountPoints,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+</mapper>

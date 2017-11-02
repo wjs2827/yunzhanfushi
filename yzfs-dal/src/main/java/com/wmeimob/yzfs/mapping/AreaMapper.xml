@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.AreaMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.Area" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="pid" property="pid" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="lv" property="lv" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, pid, name, lv, created_at, updated_at, status
+  </sql>
+  
+  <!-- 根据参数查询区域信息 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.wmeimob.yzfs.model.Area" >
+    select 
+    <include refid="Base_Column_List" />
+    from area
+    <where>
+	    status=1
+	    <if test="lv !=null and lv !=''">
+	       and lv = #{lv,jdbcType=INTEGER}
+	    </if>
+	    <if test="pid !=null and pid !=''">
+	       and pid = #{pid,jdbcType=INTEGER}
+	    </if>
+    </where>
+  </select>
+  
+ 
+   <resultMap id="PBaseResultMap" type="com.wmeimob.yzfs.model.Area" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="pid" property="pid" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="lv" property="lv" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+    <!-- 根据ID查询城市列表 -->
+    <collection property="cityList" javaType="ArrayList" ofType="com.wmeimob.yzfs.model.Area"
+          select="queryAreaCityList"  column="{pid=id}"/>
+  </resultMap>
+  
+  <resultMap id="CBaseResultMap" type="com.wmeimob.yzfs.model.Area" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="pid" property="pid" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="lv" property="lv" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+    
+    <!-- 根据ID查询区域ID -->
+    <collection property="districtList" javaType="ArrayList" ofType="com.wmeimob.yzfs.model.Area"
+          select="queryAreaDistrictList"  column="{pid=id}"/>
+  </resultMap>
+  
+  
+  <!-- 查询所有省份-->
+  <select id="queryAreaProvinceList" resultMap="PBaseResultMap" >
+    select 
+     id,name
+    from area
+    where 1=1
+	and lv = 1
+  </select>
+  
+  <!--  查询所有城市 -->
+  <select id="queryAreaCityList" resultMap="CBaseResultMap" parameterType="com.wmeimob.yzfs.model.Area" >
+    select 
+     id,name,pid
+    from area
+    <where>
+	    status=1
+	    <if test="pid !=null and pid !=''">
+	       and pid = #{pid,jdbcType=INTEGER}
+	    </if>
+    </where>
+  </select>
+  
+  <!--  查询所有区域 -->
+  <select id="queryAreaDistrictList" resultType="com.wmeimob.yzfs.model.Area" parameterType="com.wmeimob.yzfs.model.Area" >
+    select 
+     id,name,pid
+    from area
+    <where>
+	    status=1
+	    <if test="pid !=null and pid !=''">
+	       and pid = #{pid,jdbcType=INTEGER}
+	    </if>
+    </where>
+  </select>
+  
+</mapper>

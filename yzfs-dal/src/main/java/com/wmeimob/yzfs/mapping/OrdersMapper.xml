@@ -1,0 +1,695 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.OrdersMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.Orders" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="order_type" property="orderType" jdbcType="BIT" />
+    <result column="parent_order_id" property="parentOrderId" jdbcType="VARCHAR" />
+    <result column="owner_id" property="ownerId" jdbcType="VARCHAR" />
+    <result column="shop_id" property="shopId" jdbcType="VARCHAR" />
+    <result column="order_no" property="orderNo" jdbcType="VARCHAR" />
+    <result column="is_self_picked" property="isSelfPicked" jdbcType="BIT" />
+    <result column="shipping_name" property="shippingName" jdbcType="VARCHAR" />
+    <result column="shipping_province" property="shippingProvince" jdbcType="INTEGER" />
+    <result column="shipping_city" property="shippingCity" jdbcType="INTEGER" />
+    <result column="shipping_district" property="shippingDistrict" jdbcType="INTEGER" />
+    <result column="pName" property="pName" jdbcType="VARCHAR" />
+    <result column="cName" property="cName" jdbcType="VARCHAR" />
+    <result column="dName" property="dName" jdbcType="VARCHAR" />
+    <result column="shipping_address" property="shippingAddress" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="shipping_fee" property="shippingFee" jdbcType="DECIMAL" />
+    <result column="order_amount" property="orderAmount" jdbcType="DECIMAL" />
+    <result column="pay_amount" property="payAmount" jdbcType="DECIMAL" />
+    <result column="order_points" property="orderPoints" jdbcType="INTEGER" />
+    <result column="pay_points" property="payPoints" jdbcType="INTEGER" />
+    <result column="sumQuantity" property="sumQuantity" jdbcType="INTEGER" />
+    <result column="pay_at" property="payAt" jdbcType="TIMESTAMP" />
+    <result column="pay_no" property="payNo" jdbcType="VARCHAR" />
+    <result column="pay_type" property="payType" jdbcType="INTEGER" />
+    <result column="repay_count" property="repayCount" jdbcType="TINYINT" />
+    <result column="receipt_at" property="receiptAt" jdbcType="TIMESTAMP" />
+    <result column="order_status" property="orderStatus" jdbcType="TINYINT" />
+    <result column="user_comments" property="userComments" jdbcType="VARCHAR" />
+    <result column="refunds_comments" property="refundsComments" jdbcType="VARCHAR" />
+    <result column="refunds_status" property="refundsStatus" jdbcType="TINYINT" />
+    <result column="refunds_at" property="refundsAt" jdbcType="TIMESTAMP" />
+    <result column="refunds_reason" property="refundsReason" jdbcType="VARCHAR" />
+    <result column="shipping_vendor" property="shippingVendor" jdbcType="VARCHAR" />
+    <result column="shipping_no" property="shippingNo" jdbcType="VARCHAR" />
+    <result column="shipping_at" property="shippingAt" jdbcType="TIMESTAMP" />
+    <result column="shipping_note" property="shippingNote" jdbcType="VARCHAR" />
+    <result column="is_settle_commission" property="isSettleCommission" jdbcType="BIT" />
+    <result column="settled_at" property="settledAt" jdbcType="TIMESTAMP" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+    <!-- 查询订单明细 -->
+    <collection property="orderItems" javaType="ArrayList" ofType="com.wmeimob.yzfs.model.OrderItems"
+            select="com.wmeimob.yzfs.dao.OrderItemsMapper.selectOrderItemsByContainerId"  column="{containerId=id}"/>
+  </resultMap>
+  
+  
+  <sql id="Base_Column_List" >
+    id, order_type, parent_order_id, shop_id, owner_id, order_no, is_self_picked, shipping_name, 
+    shipping_province, shipping_city, shipping_district, shipping_address, shipping_shop_name, 
+    shipping_contact, mobile, shipping_fee, order_amount, order_points, pay_amount, pay_points, 
+    pay_at, pay_no, pay_type, repay_count, receipt_at, order_status, user_comments, refunds_comments, 
+    refunds_at, refunds_reason, shipping_vendor, shipping_no, shipping_at, shipping_note, 
+    is_settle_commission, settled_at, one_settle_amount, two_settle_amount, get_points, 
+    created_at, updated_at, status
+  </sql>
+  
+  <!-- WX查询点击订单进入商品详情信息 -->
+  <select id="selectOrderItemByOrderIdFromWX" parameterType="java.lang.String"
+            resultMap="BaseResultMap">
+			select  
+				o.id,
+				o.owner_id,
+				o.order_type,
+				o.order_no,
+				o.pay_type,
+				o.pay_no,
+				o.pay_at,
+				o.shipping_fee,
+				o.pay_points,
+				o.order_status,
+				o.order_amount,
+				o.pay_amount,
+				o.user_comments,
+				o.shipping_name,
+				o.mobile,
+				o.created_at,
+				o.pay_at,
+				o.settled_at,
+				p.name pName,
+				c.name cName,
+				d.name dName,
+				o.shipping_address
+			from orders o
+			left join area p on o.shipping_province =p.id
+			left join area c on o.shipping_city=c.id
+			left join area d on o.shipping_district=d.id
+			where 1=1
+			and o.status=1
+            and o.id = #{orderId}
+   </select>
+  
+  
+  <!-- 根据下单流水号查询订单信息 -->
+  <select id="queryOrderInfoByPayNo" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from orders
+    where pay_no = #{payNo,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 根据id查询订单 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from orders
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="queryOrderListByParams" parameterType="com.wmeimob.yzfs.model.Orders" resultMap="BaseResultMap">
+	  select 
+	    o.id,
+	    o.order_type,
+	    o.parent_order_id,
+		o.owner_id,
+		o.order_no,
+		o.shipping_name,
+		o.shipping_province,
+		o.shipping_city,
+		o.shipping_district,
+		o.shipping_address,
+		o.mobile,
+		ifnull(o.shipping_fee,0) shipping_fee,
+		ifnull(o.order_amount,0) order_amount,
+		ifnull(o.pay_amount,0) pay_amount,
+		date_format(o.pay_at,'%Y-%m-%d %T') pay_at,
+		o.pay_type,
+		o.order_status,
+		o.shipping_vendor,
+		o.shipping_no,
+		date_format(o.shipping_at,'%Y-%m-%d %T') shipping_at,
+		date_format(o.created_at,'%Y-%m-%d %T') created_at
+	from orders o
+    <if test="goodName != null and goodName !='' or classId != null and classId !='' " >
+      inner join order_items oi on o.id=oi.container_id
+      inner join ec_goods eg on eg.id=oi.good_id
+    </if >
+    where 1=1
+    and o.status=1
+    <if test="startTime != null and startTime != ''">
+        and date_format(o.created_at,'%Y-%m-%d') &gt;= #{startTime}
+    </if>
+    <if test="endTime != null and endTime != '' ">
+        and date_format(o.created_at,'%Y-%m-%d') &lt;= #{endTime}
+    </if>
+    <if test="orderStatus!=-1 " >
+     and o.order_status=#{orderStatus,jdbcType=INTEGER}
+    </if>
+    <if test="orderStatus==-1 " >
+     and o.order_status != 6 
+    </if>
+    <if test="classId != null and classId !='' " >
+        and eg.classes_id=#{classId,jdbcType=VARCHAR}
+    </if>
+    <if test="goodName != null and goodName !='' " >
+        and eg.name like '%${goodName}%'
+        or o.order_no like '%${goodName}%'
+    </if>
+    group by o.order_no
+  </select>
+  
+  
+  <!-- 新增订单 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.Orders" >
+    insert into orders
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderType != null" >
+        order_type,
+      </if>
+      <if test="parentOrderId != null" >
+        parent_order_id,
+      </if>
+      <if test="shopId != null" >
+        shop_id,
+      </if>
+      <if test="ownerId != null" >
+        owner_id,
+      </if>
+      <if test="orderNo != null" >
+        order_no,
+      </if>
+      <if test="isSelfPicked != null" >
+        is_self_picked,
+      </if>
+      <if test="shippingName != null" >
+        shipping_name,
+      </if>
+      <if test="shippingProvince != null" >
+        shipping_province,
+      </if>
+      <if test="shippingCity != null" >
+        shipping_city,
+      </if>
+      <if test="shippingDistrict != null" >
+        shipping_district,
+      </if>
+      <if test="shippingAddress != null" >
+        shipping_address,
+      </if>
+      <if test="shippingShopName != null" >
+        shipping_shop_name,
+      </if>
+      <if test="shippingContact != null" >
+        shipping_contact,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="shippingFee != null" >
+        shipping_fee,
+      </if>
+      <if test="orderAmount != null" >
+        order_amount,
+      </if>
+      <if test="orderPoints != null" >
+        order_points,
+      </if>
+      <if test="payAmount != null" >
+        pay_amount,
+      </if>
+      <if test="payPoints != null" >
+        pay_points,
+      </if>
+      <if test="payAt != null" >
+        pay_at,
+      </if>
+      <if test="payNo != null" >
+        pay_no,
+      </if>
+      <if test="payType != null" >
+        pay_type,
+      </if>
+      <if test="repayCount != null" >
+        repay_count,
+      </if>
+      <if test="receiptAt != null" >
+        receipt_at,
+      </if>
+      <if test="orderStatus != null" >
+        order_status,
+      </if>
+      <if test="userComments != null" >
+        user_comments,
+      </if>
+      <if test="refundsComments != null" >
+        refunds_comments,
+      </if>
+      <if test="refundsAt != null" >
+        refunds_at,
+      </if>
+      <if test="refundsReason != null" >
+        refunds_reason,
+      </if>
+      <if test="shippingVendor != null" >
+        shipping_vendor,
+      </if>
+      <if test="shippingNo != null" >
+        shipping_no,
+      </if>
+      <if test="shippingAt != null" >
+        shipping_at,
+      </if>
+      <if test="shippingNote != null" >
+        shipping_note,
+      </if>
+      <if test="isSettleCommission != null" >
+        is_settle_commission,
+      </if>
+      <if test="settledAt != null" >
+        settled_at,
+      </if>
+      <if test="oneSettleAmount != null" >
+        one_settle_amount,
+      </if>
+      <if test="twoSettleAmount != null" >
+        two_settle_amount,
+      </if>
+      <if test="getPoints != null" >
+        get_points,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="orderType != null" >
+        #{orderType,jdbcType=BIT},
+      </if>
+      <if test="parentOrderId != null" >
+        #{parentOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="shopId != null" >
+        #{shopId,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerId != null" >
+        #{ownerId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null" >
+        #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="isSelfPicked != null" >
+        #{isSelfPicked,jdbcType=BIT},
+      </if>
+      <if test="shippingName != null" >
+        #{shippingName,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingProvince != null" >
+        #{shippingProvince,jdbcType=INTEGER},
+      </if>
+      <if test="shippingCity != null" >
+        #{shippingCity,jdbcType=INTEGER},
+      </if>
+      <if test="shippingDistrict != null" >
+        #{shippingDistrict,jdbcType=INTEGER},
+      </if>
+      <if test="shippingAddress != null" >
+        #{shippingAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingShopName != null" >
+        #{shippingShopName,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingContact != null" >
+        #{shippingContact,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingFee != null" >
+        #{shippingFee,jdbcType=DECIMAL},
+      </if>
+      <if test="orderAmount != null" >
+        #{orderAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="orderPoints != null" >
+        #{orderPoints,jdbcType=INTEGER},
+      </if>
+      <if test="payAmount != null" >
+        #{payAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="payPoints != null" >
+        #{payPoints,jdbcType=INTEGER},
+      </if>
+      <if test="payAt != null" >
+        #{payAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payNo != null" >
+        #{payNo,jdbcType=VARCHAR},
+      </if>
+      <if test="payType != null" >
+        #{payType,jdbcType=INTEGER},
+      </if>
+      <if test="repayCount != null" >
+        #{repayCount,jdbcType=TINYINT},
+      </if>
+      <if test="receiptAt != null" >
+        #{receiptAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderStatus != null" >
+        #{orderStatus,jdbcType=TINYINT},
+      </if>
+      <if test="userComments != null" >
+        #{userComments,jdbcType=VARCHAR},
+      </if>
+      <if test="refundsComments != null" >
+        #{refundsComments,jdbcType=VARCHAR},
+      </if>
+      <if test="refundsAt != null" >
+        #{refundsAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="refundsReason != null" >
+        #{refundsReason,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingVendor != null" >
+        #{shippingVendor,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingNo != null" >
+        #{shippingNo,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingAt != null" >
+        #{shippingAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="shippingNote != null" >
+        #{shippingNote,jdbcType=VARCHAR},
+      </if>
+      <if test="isSettleCommission != null" >
+        #{isSettleCommission,jdbcType=BIT},
+      </if>
+      <if test="settledAt != null" >
+        #{settledAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="oneSettleAmount != null" >
+        #{oneSettleAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="twoSettleAmount != null" >
+        #{twoSettleAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="getPoints != null" >
+        #{getPoints,jdbcType=DECIMAL},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+   <!-- 修改订单信息 -->
+   <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.Orders" >
+    update orders
+    <set >
+      <if test="orderType != null" >
+        order_type = #{orderType,jdbcType=BIT},
+      </if>
+      <if test="parentOrderId != null" >
+        parent_order_id = #{parentOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="shopId != null" >
+        shop_id = #{shopId,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerId != null" >
+        owner_id = #{ownerId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null" >
+        order_no = #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="isSelfPicked != null" >
+        is_self_picked = #{isSelfPicked,jdbcType=BIT},
+      </if>
+      <if test="shippingName != null" >
+        shipping_name = #{shippingName,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingProvince != null" >
+        shipping_province = #{shippingProvince,jdbcType=INTEGER},
+      </if>
+      <if test="shippingCity != null" >
+        shipping_city = #{shippingCity,jdbcType=INTEGER},
+      </if>
+      <if test="shippingDistrict != null" >
+        shipping_district = #{shippingDistrict,jdbcType=INTEGER},
+      </if>
+      <if test="shippingAddress != null" >
+        shipping_address = #{shippingAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingShopName != null" >
+        shipping_shop_name = #{shippingShopName,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingContact != null" >
+        shipping_contact = #{shippingContact,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingFee != null" >
+        shipping_fee = #{shippingFee,jdbcType=DECIMAL},
+      </if>
+      <if test="orderAmount != null" >
+        order_amount = #{orderAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="orderPoints != null" >
+        order_points = #{orderPoints,jdbcType=INTEGER},
+      </if>
+      <if test="payAmount != null" >
+        pay_amount = #{payAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="payPoints != null" >
+        pay_points = #{payPoints,jdbcType=INTEGER},
+      </if>
+      <if test="payAt != null" >
+        pay_at = #{payAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payNo != null" >
+        pay_no = #{payNo,jdbcType=VARCHAR},
+      </if>
+      <if test="payType != null" >
+        pay_type = #{payType,jdbcType=INTEGER},
+      </if>
+      <if test="repayCount != null" >
+        repay_count = #{repayCount,jdbcType=TINYINT},
+      </if>
+      <if test="receiptAt != null" >
+        receipt_at = #{receiptAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderStatus != null" >
+        order_status = #{orderStatus,jdbcType=TINYINT},
+      </if>
+      <if test="userComments != null" >
+        user_comments = #{userComments,jdbcType=VARCHAR},
+      </if>
+      <if test="refundsComments != null" >
+        refunds_comments = #{refundsComments,jdbcType=VARCHAR},
+      </if>
+      <if test="refundsAt != null" >
+        refunds_at = #{refundsAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="refundsReason != null" >
+        refunds_reason = #{refundsReason,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingVendor != null" >
+        shipping_vendor = #{shippingVendor,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingNo != null" >
+        shipping_no = #{shippingNo,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingAt != null" >
+        shipping_at = #{shippingAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="shippingNote != null" >
+        shipping_note = #{shippingNote,jdbcType=VARCHAR},
+      </if>
+      <if test="isSettleCommission != null" >
+        is_settle_commission = #{isSettleCommission,jdbcType=BIT},
+      </if>
+      <if test="settledAt != null" >
+        settled_at = #{settledAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="oneSettleAmount != null" >
+        one_settle_amount = #{oneSettleAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="twoSettleAmount != null" >
+        two_settle_amount = #{twoSettleAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="getPoints != null" >
+        get_points = #{getPoints,jdbcType=DECIMAL},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+
+	<select id="selectOrderListByCondition" parameterType="com.wmeimob.yzfs.model.Orders" resultMap="BaseResultMap">
+		select
+		o.id,
+		o.shipping_name,
+		o.mobile,
+		(select a.name from area a where a.id = o.shipping_province and a.lv=1) shipping_province,
+		(select a.name from area a where a.id = o.shipping_city and a.lv=2) shipping_city,
+		(select a.name from area a where a.id = o.shipping_district and a.lv=3) shipping_district,
+		o.shipping_address,
+		o.order_points,
+		o.shipping_vendor,
+		o.shipping_no,
+		o.order_status
+		from orders o
+		where o.status=1
+		<if test="ownerId != null and ownerId!=''">
+			and owner_id = #{ownerId,jdbcType=VARCHAR}
+		</if>
+		<if test="orderStatus != null">
+			and order_status = #{orderStatus,jdbcType=TINYINT}
+		</if>
+		<if test="orderStatus == null">
+			and order_status != 6
+		</if>
+	</select>
+	
+	
+	<!-- 查询订单详情 -->
+	<select id="selectOrderItemsById" parameterType="java.lang.String" resultMap="BaseResultMap">
+	    select 
+	        o.id,
+	        o.order_type, 
+	        o.parent_order_id, 
+	        o.owner_id, 
+	        o.order_no, 
+	        o.shipping_name, 
+		    o.shipping_address, 
+		    o.mobile, 
+		    o.shipping_fee, 
+		    o.order_amount, 
+		    o.pay_amount,
+		    ifnull(o.order_points,0) order_points ,
+            ifnull(o.pay_points,0) pay_points, 
+		    o.pay_at, 
+		    o.pay_no, 
+		    o.pay_type, 
+		    o.repay_count, 
+		    o.receipt_at, 
+		    o.order_status, 
+		    o.user_comments, 
+		    o.refunds_comments, 
+		    o.refunds_at, 
+		    o.refunds_reason, 
+		    o.shipping_vendor, 
+		    o.shipping_no,
+		    (select a.name from area a where a.id = o.shipping_province and a.lv=1) pName,
+		    (select a.name from area a where a.id = o.shipping_city and a.lv=2) dName,
+		    (select a.name from area a where a.id = o.shipping_district and a.lv=3) cName, 
+		    o.shipping_at, 
+		    o.shipping_note, 
+		    o.created_at, 
+		    o.updated_at, 
+		    status
+	    from orders o
+	    where 1=1
+	    and o.status=1
+	    and o.id = #{id,jdbcType=VARCHAR}
+	</select>
+  
+  
+   <!-- 查询订单各个状态数量 -->
+   <select id="queryOrderStatusCount" parameterType="java.lang.String" resultType="com.wmeimob.yzfs.vo.OrderStatusCount">
+ 	SELECT a.* ,b.*,c.*,d.*,f.* from
+		(
+				SELECT count(1) unPay  from orders where order_status ='0'     AND owner_id=#{userId} AND status='1' 
+		)a,
+		(
+				SELECT count(1) waitShipping  from orders where order_status ='1'     AND owner_id=#{userId} AND status='1' 
+		)b,
+		(
+				SELECT count(1) waitReceipt from orders where order_status ='2'    AND owner_id=#{userId} AND status='1'
+		)c,
+		(
+				SELECT count(1) waitEvaluate from orders where order_status ='3'    AND owner_id=#{userId} AND status='1'
+		)d,
+        (
+				select sum(quantity) cartNumber from  order_items  where status=1  and  container_type=1  and container_id =(select  id from ec_cart where  owner_id=#{userId} and status=1) 
+		)f
+   </select>
+   
+   <!-- WX查询订单列表 -->
+   <select id="queryOrderListByParamsFromWX" parameterType="com.wmeimob.yzfs.model.Orders" resultMap="BaseResultMap">
+	  select 
+	    o.id,
+	    o.order_type,
+	    o.parent_order_id,
+		o.owner_id,
+		o.order_no,
+		o.shipping_name,
+		o.shipping_province,
+		o.shipping_city,
+		o.shipping_district,
+		o.shipping_address,
+		o.mobile,
+		ifnull(o.shipping_fee,0) shipping_fee,
+		ifnull(o.order_amount,0) order_amount,
+		ifnull(o.pay_amount,0) pay_amount,
+		(
+	     select sum(oi.quantity) from order_items oi where status=1
+	     and oi.container_id=o.id
+	    ) sumQuantity,
+		date_format(o.pay_at,'%Y-%m-%d %T') pay_at,
+		o.pay_type,
+		o.order_status,
+		o.shipping_vendor,
+		o.shipping_no,
+		date_format(o.shipping_at,'%Y-%m-%d %T') shipping_at,
+		date_format(o.created_at,'%Y-%m-%d %T') created_at
+	from orders o
+    where 1=1
+    and o.status=1
+    <if test="orderStatus !=-1 " >
+     and o.order_status=#{orderStatus,jdbcType=INTEGER}
+    </if>
+    <if test="orderStatus==-1 " >
+     and o.order_status != 6 
+    </if>
+    <if test="ownerId !=null and ownerId !='' " >
+     and o.owner_id=#{ownerId,jdbcType=VARCHAR}
+    </if>
+    group by o.created_at desc
+    limit #{pageIndex},#{pageSize}
+  </select>
+  
+</mapper>

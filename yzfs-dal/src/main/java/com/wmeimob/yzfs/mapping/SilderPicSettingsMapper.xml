@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.SilderPicSettingsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.SilderPicSettings" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="pic_type" property="picType" jdbcType="BIT" />
+    <result column="shop_id" property="shopId" jdbcType="VARCHAR" />
+    <result column="pic_key" property="picKey" jdbcType="VARCHAR" />
+    <result column="rank" property="rank" jdbcType="INTEGER" />
+    <result column="target_type" property="targetType" jdbcType="TINYINT" />
+    <result column="target_id" property="targetId" jdbcType="VARCHAR" />
+    <result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
+    <result column="is_disabled" property="isDisabled" jdbcType="BIT" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+    <result column="count(*)" property="totalCount" jdbcType="INTEGER" />
+    <result column="pName" property="pName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, pic_type, shop_id, pic_key, rank, target_type, target_id, link_url, is_disabled, 
+    created_at, updated_at, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from silder_pic_settings
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- admin商品下架验证该商品是否存在在轮播图中，如果存在，提示不能下架 -->
+  <select id="verifyGoodExist" resultMap="BaseResultMap" parameterType="java.lang.String" >
+	select 
+	count(*) totalCount,eg.name pName
+	from  silder_pic_settings s
+	left join ec_goods eg on s.target_id=eg.id and eg.status=1
+    where s.target_id = #{goodId,jdbcType=VARCHAR}
+    and  s.status=1
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from silder_pic_settings
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.wmeimob.yzfs.model.SilderPicSettings" >
+    insert into silder_pic_settings (id, pic_type, shop_id, 
+      pic_key, rank, target_type, 
+      target_id, link_url, is_disabled, 
+      created_at, updated_at, status
+      )
+    values (#{id,jdbcType=VARCHAR}, #{picType,jdbcType=BIT}, #{shopId,jdbcType=VARCHAR}, 
+      #{picKey,jdbcType=VARCHAR}, #{rank,jdbcType=INTEGER}, #{targetType,jdbcType=TINYINT}, 
+      #{targetId,jdbcType=VARCHAR}, #{linkUrl,jdbcType=VARCHAR}, #{isDisabled,jdbcType=BIT}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{status,jdbcType=BIT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.SilderPicSettings" >
+    insert into silder_pic_settings
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="picType != null" >
+        pic_type,
+      </if>
+      <if test="shopId != null" >
+        shop_id,
+      </if>
+      <if test="picKey != null" >
+        pic_key,
+      </if>
+      <if test="rank != null" >
+        rank,
+      </if>
+      <if test="targetType != null" >
+        target_type,
+      </if>
+      <if test="targetId != null" >
+        target_id,
+      </if>
+      <if test="linkUrl != null" >
+        link_url,
+      </if>
+      <if test="isDisabled != null" >
+        is_disabled,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="picType != null" >
+        #{picType,jdbcType=BIT},
+      </if>
+      <if test="shopId != null" >
+        #{shopId,jdbcType=VARCHAR},
+      </if>
+      <if test="picKey != null" >
+        #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="rank != null" >
+        #{rank,jdbcType=INTEGER},
+      </if>
+      <if test="targetType != null" >
+        #{targetType,jdbcType=TINYINT},
+      </if>
+      <if test="targetId != null" >
+        #{targetId,jdbcType=VARCHAR},
+      </if>
+      <if test="linkUrl != null" >
+        #{linkUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="isDisabled != null" >
+        #{isDisabled,jdbcType=BIT},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.SilderPicSettings" >
+    update silder_pic_settings
+    <set >
+      <if test="picType != null" >
+        pic_type = #{picType,jdbcType=BIT},
+      </if>
+      <if test="shopId != null" >
+        shop_id = #{shopId,jdbcType=VARCHAR},
+      </if>
+      <if test="picKey != null" >
+        pic_key = #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="rank != null" >
+        rank = #{rank,jdbcType=INTEGER},
+      </if>
+      <if test="targetType != null" >
+        target_type = #{targetType,jdbcType=TINYINT},
+      </if>
+      <if test="targetId != null" >
+        target_id = #{targetId,jdbcType=VARCHAR},
+      </if>
+      <if test="linkUrl != null" >
+        link_url = #{linkUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="isDisabled != null" >
+        is_disabled = #{isDisabled,jdbcType=BIT},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wmeimob.yzfs.model.SilderPicSettings" >
+    update silder_pic_settings
+    set pic_type = #{picType,jdbcType=BIT},
+      shop_id = #{shopId,jdbcType=VARCHAR},
+      pic_key = #{picKey,jdbcType=VARCHAR},
+      rank = #{rank,jdbcType=INTEGER},
+      target_type = #{targetType,jdbcType=TINYINT},
+      target_id = #{targetId,jdbcType=VARCHAR},
+      link_url = #{linkUrl,jdbcType=VARCHAR},
+      is_disabled = #{isDisabled,jdbcType=BIT},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=BIT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- shopId搜索SliderPic列表 -->
+  <select id="selectByShopId" resultType="com.wmeimob.yzfs.vo.SilderPicVO" parameterType="java.lang.String" >
+    SELECT sps.id,sps.pic_type picType,
+	   sps.shop_id shopId,sps.pic_key picKey,
+	   sps.rank,sps.target_type targetType,
+       sps.target_id targetId,sps.link_url linkUrl,
+       CASE WHEN sps.target_type=0 THEN 
+		    (SELECT ecg.`name` 
+			 FROM ec_goods ecg 
+			 WHERE ecg.id=sps.target_id)
+			WHEN sps.target_type=1 THEN
+            (SELECT sp.`name`
+			 FROM shops sp 
+             WHERE sp.id=sps.target_id)
+			WHEN sps.target_type=3 THEN
+            (SELECT egc.`name`  
+             FROM ec_goods_classes egc
+             WHERE egc.id=sps.target_id)
+		END as targetName,
+		CASE WHEN sps.target_type=0 THEN 
+		    (SELECT ecg.`shop_id` 
+			 FROM ec_goods ecg 
+			 WHERE ecg.id=sps.target_id)
+		END as parentId
+	FROM silder_pic_settings sps
+	WHERE sps.`status`=1
+	<if test="shopId!=null and shopId!=''">
+		AND sps.shop_id=#{shopId,jdbcType=VARCHAR} 
+	</if>
+	order by sps.rank DESC 
+  </select>
+  
+  <!-- 获取最大rank值 -->
+  <select id="selectMaxRank" resultType="java.lang.Integer">
+  SELECT max(rank) 
+  FROM silder_pic_settings AS rank;
+  </select>
+  
+  <!-- 微信端开始 -->
+  
+  
+  <!-- WX端查询首页轮播图 -->
+  <select id="querySilderListFromWX" resultType="com.wmeimob.yzfs.vo.SilderPicVO" parameterType="com.wmeimob.yzfs.model.SilderPicSettings" >
+    SELECT sps.id,sps.pic_type picType,
+	   sps.shop_id shopId,sps.pic_key picKey,
+	   sps.rank,sps.target_type targetType,
+       sps.target_id targetId,sps.link_url linkUrl,
+       CASE WHEN sps.target_type=0 THEN 
+		    (SELECT ecg.`name` 
+			 FROM ec_goods ecg 
+			 WHERE ecg.id=sps.target_id)
+			WHEN sps.target_type=1 THEN
+            (SELECT sp.`name`
+			 FROM shops sp 
+             WHERE sp.id=sps.target_id)
+			WHEN sps.target_type=3 THEN
+            (SELECT egc.`name`  
+             FROM ec_goods_classes egc
+             WHERE egc.id=sps.target_id)
+		END as targetName,
+		CASE WHEN sps.target_type=0 THEN 
+		    (SELECT ecg.`shop_id` 
+			 FROM ec_goods ecg 
+			 WHERE ecg.id=sps.target_id)
+		END as parentId
+	FROM silder_pic_settings sps
+	WHERE sps.`status`=1
+	order by sps.rank DESC 
+  </select>
+  
+  
+</mapper>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.HomeCategoryMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.HomeCategory" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="category_id" property="categoryId" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="is_use" property="isUse" jdbcType="BIT" />
+    <result column="rank" property="rank" jdbcType="INTEGER" />
+    <collection property="homeCategoryProductVo"  javaType="ArrayList" ofType="com.wmeimob.yzfs.vo.HomeCategoryProductVO"
+                select="selectHomeCategoryProductByCateId" column="{categoryId=id}"/>
+  </resultMap>
+  
+  <!-- 首页分类商品MAP -->
+  <resultMap id="BaseResultMapProductVO" type="com.wmeimob.yzfs.vo.HomeCategoryProductVO" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="homeCategoryId" property="homeCategoryId" jdbcType="VARCHAR" />
+    <result column="spuId" property="spuId" jdbcType="VARCHAR" />
+    <result column="spu_key" property="spuKey" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="show_price" property="show_price" jdbcType="DECIMAL" />
+    <result column="market_price" property="markket_price" jdbcType="DECIMAL" />
+    <result column="sale_count" property="sale_count" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
+    <result column="rank" property="rank" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <!-- 首页分类MAP -->
+  <resultMap id="BaseResultMapVO" type="com.wmeimob.yzfs.vo.HomeCategoryVO" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="category_id" property="categoryId" jdbcType="VARCHAR" />
+    <result column="name" property="cateGoryName" jdbcType="VARCHAR" />
+    <result column="picKey" property="picKey" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="is_use" property="isUse" jdbcType="BIT" />
+    <result column="rank" property="rank" jdbcType="INTEGER" />
+    <collection property="homeCategoryProductVo"  javaType="ArrayList" ofType="com.wmeimob.yzfs.vo.HomeCategoryProductVO"
+                select="selectHomeCategoryProductByCateId" column="{homeCategoryId=id}"/>
+  </resultMap>
+  
+  
+  <!-- 查询所有首页分类 -->
+    <select id="selectHomeCategory"  resultMap="BaseResultMapVO">
+		select 
+			hc.id,
+			hc.is_use,
+			hc.type,
+			egc.id category_id,
+			egc.name,
+			egc.pic_key picKey 
+		from home_category hc
+		left join ec_goods_classes egc on hc.category_id=egc.id
+		where 1=1
+		and hc.is_deleted=1
+		order by hc.rank
+    </select>
+  
+    <!-- 根据首页分类ID查询所有首页分类 商品-->
+    <select id="selectHomeCategoryProductByCateId" parameterType="com.wmeimob.yzfs.vo.HomeCategoryProductVO" resultMap="BaseResultMapProductVO">
+		select 
+		    hcg.id,
+			hcg.home_category_id homeCategoryId,
+			hcg.spu_id spuId,
+			hcg.spu_key,
+			eg.name,
+		    (
+		       select egs.market_price from ec_good_sku  egs where egs.spu_id=eg.id
+		       
+		       order by price desc 
+		       limit 0,1
+		     ) markket_price,
+		     (
+		       select egs.price from ec_good_sku  egs where egs.spu_id=eg.id
+		       order by price desc 
+		       limit 0,1
+		     ) show_price,
+		     ifnull((
+		       select sum(egs.sale_count) from ec_good_sku  egs where egs.spu_id=eg.id
+		       order by price desc 
+		       limit 0,1
+		      ),0) sale_count
+		from home_category_product hcg
+		left join ec_goods eg on hcg.spu_id=eg.id
+		where 1=1
+		and hcg.is_deleted=1
+		and hcg.home_category_id=#{homeCategoryId}
+    </select>
+    
+  <!-- 新增首页分类 -->
+  <insert id="insertHomeCateGory" parameterType="com.wmeimob.yzfs.model.HomeCategory" >
+    insert into home_category
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="categoryId != null" >
+        category_id,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="isUse != null" >
+        is_use,
+      </if>
+      <if test="rank != null" >
+        rank,
+      </if>
+      <if test="isUse != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryId != null" >
+        #{categoryId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isUse != null" >
+        #{isUse,jdbcType=BIT},
+      </if>
+      <if test="rank != null" >
+        #{rank,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  
+    <!-- 新增首页分类商品-->
+  <insert id="insertHomeCateGoryProduct" parameterType="com.wmeimob.yzfs.model.HomeCategoryProduct" >
+    insert into home_category_product
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="homeCategoryId != null" >
+        home_category_id,
+      </if>
+      <if test="spuId != null" >
+        spu_id,
+      </if>
+      <if test="spuKey != null" >
+        spu_key,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="rank != null" >
+        rank,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="homeCategoryId != null" >
+        #{homeCategoryId,jdbcType=VARCHAR},
+      </if>
+      <if test="spuId != null" >
+        #{spuId,jdbcType=VARCHAR},
+      </if>
+      <if test="spuKey != null" >
+        #{spuKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=BIT},
+      </if>
+      <if test="rank != null" >
+        #{rank,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据ID删除首页分类 -->
+  <update id="updateCategoryById" parameterType="java.lang.String">
+        update home_category
+        <set>
+            is_deleted =0,
+            <!-- 修改时间-->
+            updated_at = SYSDATE(),
+        </set>
+        where id = #{id}
+  </update>
+  
+ <!-- 根据ID删除分类商品 -->
+  <update id="updateCategoryProductById" parameterType="java.lang.String">
+        update home_category_product
+        <set>
+            is_deleted =0,
+            <!-- 修改时间-->
+            updated_at = SYSDATE(),
+        </set>
+        where id = #{id}
+  </update>
+  
+</mapper>

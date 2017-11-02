@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.UsersMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.User" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="BIT" />
+    <result column="shop_id" property="shopId" jdbcType="VARCHAR" />
+    <result column="login_name" property="loginName" jdbcType="VARCHAR" />
+    <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
+    <result column="passwd" property="passwd" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="BIT" />
+    <result column="head_img" property="headImg" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="province" property="province" jdbcType="VARCHAR" />
+    <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="district" property="district" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="pay_passwd" property="payPasswd" jdbcType="VARCHAR" />
+    <result column="wx_open_id" property="wxOpenId" jdbcType="VARCHAR" />
+    <result column="qrcode_ticket" property="qrcodeTicket" jdbcType="VARCHAR" />
+    <result column="recommend_qty" property="recommendQty" jdbcType="INTEGER" />
+    <result column="recommend_user_id" property="recommendUserId" jdbcType="VARCHAR" />
+    <result column="invitate_Code" property="invitateCode" jdbcType="VARCHAR" />
+    <result column="is_used" property="isUsed" jdbcType="BIT" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+    <result column="qrcode_key" property="qrcodeKey" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, type, shop_id, login_name, nick_name, passwd, sex, head_img, mobile, province, 
+    city, district, address, pay_passwd, wx_open_id, qrcode_ticket, recommend_qty, recommend_user_id, 
+    invitate_Code, is_used, created_at, updated_at, status, qrcode_key
+  </sql>
+  
+  <!-- 根据参数查询用户信息 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.wmeimob.yzfs.vo.UserVO">
+    select 
+    <include refid="Base_Column_List" />
+    from users
+    <where>
+     status=1
+     <if test="id !=null and id !='' ">
+      and id= #{id,jdbcType=VARCHAR}
+     </if>
+     <if test="wxOpenId !=null and wxOpenId !='' ">
+      and wx_open_id= #{wxOpenId,jdbcType=VARCHAR}
+     </if>
+    </where>
+  </select>
+  
+  <!-- 根据参数查询用户里列表信息 -->
+  <select id="selectUserListByParams" resultType="com.wmeimob.yzfs.vo.UserVO" parameterType="com.wmeimob.yzfs.vo.UserVO" >
+	select 
+		u.id, 
+		u.type, 
+		u.shop_id, 
+		u.login_name loginName, 
+		u.nick_name nickName, 
+		u.passwd, 
+		u.sex, 
+		u.head_img headImg, 
+		u.mobile, 
+		u.province,   
+		u.city, 
+		u.district, 
+		u.address, 
+		u.wx_open_id wxOpenId, 
+		u.qrcode_ticket qrcodeTicket, 
+		u.recommend_qty recommendQty, 
+		u.recommend_user_id recommendUserId, 
+		(
+		select r.nick_name from users r where r.id=u.recommend_user_id
+		) recommentNickName,
+		ifnull((
+		select sum(ual.change_amount) from user_account_logs ual where ual.change_type='recharge'
+		and ual.from_user_id=u.id
+		),0) sumRechargeAmount,
+		ifnull(ua.amount,0) amount,
+		ifnull((
+		select sum(uc.card_points) from user_cards uc where uc.user_id=u.id
+		),0) sumPoints,
+		u.invitate_Code invitateCode, 
+		u.is_used isUsed, 
+		u.created_at createdAt, 
+		u.updated_at updatedAt, 
+		u.status
+	from users u
+	left join user_accounts ua on u.id=ua.user_id
+	<where>
+	 u.status=1
+    <if test="startTime != null and startTime != ''">
+        and date_format(u.created_at,'%Y-%m-%d') &gt;= #{startTime}
+    </if>
+    <if test="endTime != null and endTime != '' ">
+        and date_format(u.created_at,'%Y-%m-%d') &lt;= #{endTime}
+    </if>
+	<if test="nickName !=null and nickName !='' ">
+	 and (u.nick_name like '%${nickName}%'
+	 or u.mobile like '%${nickName}%')
+	</if>
+	</where>
+	group by u.id
+	order by u.created_at desc
+  </select>
+  
+  <!-- 新增用户信息 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.User" >
+    insert into users
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="shopId != null" >
+        shop_id,
+      </if>
+      <if test="loginName != null" >
+        login_name,
+      </if>
+      <if test="nickName != null" >
+        nick_name,
+      </if>
+      <if test="passwd != null" >
+        passwd,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="headImg != null" >
+        head_img,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="province != null" >
+        province,
+      </if>
+      <if test="city != null" >
+        city,
+      </if>
+      <if test="district != null" >
+        district,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="payPasswd != null" >
+        pay_passwd,
+      </if>
+      <if test="wxOpenId != null" >
+        wx_open_id,
+      </if>
+      <if test="qrcodeTicket != null" >
+        qrcode_ticket,
+      </if>
+      <if test="recommendQty != null" >
+        recommend_qty,
+      </if>
+      <if test="recommendUserId != null" >
+        recommend_user_id,
+      </if>
+      <if test="invitateCode != null" >
+        invitate_Code,
+      </if>
+      <if test="isUsed != null" >
+        is_used,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="qrcodeKey != null" >
+        qrcode_key,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=BIT},
+      </if>
+      <if test="shopId != null" >
+        #{shopId,jdbcType=VARCHAR},
+      </if>
+      <if test="loginName != null" >
+        #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null" >
+        #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="passwd != null" >
+        #{passwd,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=BIT},
+      </if>
+      <if test="headImg != null" >
+        #{headImg,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null" >
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="district != null" >
+        #{district,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="payPasswd != null" >
+        #{payPasswd,jdbcType=VARCHAR},
+      </if>
+      <if test="wxOpenId != null" >
+        #{wxOpenId,jdbcType=VARCHAR},
+      </if>
+      <if test="qrcodeTicket != null" >
+        #{qrcodeTicket,jdbcType=VARCHAR},
+      </if>
+      <if test="recommendQty != null" >
+        #{recommendQty,jdbcType=INTEGER},
+      </if>
+      <if test="recommendUserId != null" >
+        #{recommendUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="invitateCode != null" >
+        #{invitateCode,jdbcType=VARCHAR},
+      </if>
+      <if test="isUsed != null" >
+        #{isUsed,jdbcType=BIT},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+      <if test="qrcodeKey != null" >
+        #{qrcodeKey,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据用户ID修改用户信息 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.User" >
+    update users
+    <set >
+      <if test="type != null" >
+        type = #{type,jdbcType=BIT},
+      </if>
+      <if test="shopId != null" >
+        shop_id = #{shopId,jdbcType=VARCHAR},
+      </if>
+      <if test="loginName != null" >
+        login_name = #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null" >
+        nick_name = #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="passwd != null" >
+        passwd = #{passwd,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=BIT},
+      </if>
+      <if test="headImg != null" >
+        head_img = #{headImg,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null" >
+        province = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        city = #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="district != null" >
+        district = #{district,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="payPasswd != null" >
+        pay_passwd = #{payPasswd,jdbcType=VARCHAR},
+      </if>
+      <if test="wxOpenId != null" >
+        wx_open_id = #{wxOpenId,jdbcType=VARCHAR},
+      </if>
+      <if test="qrcodeTicket != null" >
+        qrcode_ticket = #{qrcodeTicket,jdbcType=VARCHAR},
+      </if>
+      <if test="recommendQty != null" >
+        recommend_qty = #{recommendQty,jdbcType=INTEGER},
+      </if>
+      <if test="recommendUserId != null" >
+        recommend_user_id = #{recommendUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="invitateCode != null" >
+        invitate_Code = #{invitateCode,jdbcType=VARCHAR},
+      </if>
+      <if test="isUsed != null" >
+        is_used = #{isUsed,jdbcType=BIT},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+      <if test="qrcodeKey != null" >
+        qrcode_key = #{qrcodeKey,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+   <!--充值统计  -->
+  <select id="queryRechargeStatistics" resultType="com.wmeimob.yzfs.vo.DataStatisticsVO">
+    select 
+		u.id,
+		u.nick_name nickName,
+		u.mobile,
+		u.sex,
+		u.head_img headImg,
+		ifnull((
+		select sum(ual.change_amount) from  user_account_logs ual 
+		left join user_accounts ua on  ual.user_account_id=ua.id
+		where 1=1
+		<if test="startTime != null and startTime != ''">
+	        and date_format(ual.created_at,'%Y-%m-%d') &gt;= #{startTime}
+	    </if>
+	    <if test="endTime != null and endTime != '' ">
+	        and date_format(ual.created_at,'%Y-%m-%d') &lt;= #{endTime}
+	    </if>
+		and ual.change_type='recharge'
+		and ua.user_id=u.id
+		),0) sumRechargeAmount,
+		ifnull((
+		select sum(ual.attach_amount) from  user_account_logs ual 
+		left join user_accounts ua on  ual.user_account_id=ua.id
+		where 1=1
+		<if test="startTime != null and startTime != ''">
+	        and date_format(ual.created_at,'%Y-%m-%d') &gt;= #{startTime}
+	    </if>
+	    <if test="endTime != null and endTime != '' ">
+	        and date_format(ual.created_at,'%Y-%m-%d') &lt;= #{endTime}
+	    </if>
+		and ual.change_type='recharge'
+		and ua.user_id=u.id
+		),0) sumAttachAmount
+	 from users u
+	 where 1=1
+ 	 <!--用户昵称或者手机号码-->
+     <if test="nickName !=null and nickName !='' ">
+            and (u.nick_name like '%${nickName}%'  or u.mobile like '%${nickName}%')
+     </if>
+     order by u.created_at desc
+    </select> 
+    
+  <!--佣金统计  -->
+  <select id="queryCommissionStatistics" resultType="com.wmeimob.yzfs.vo.DataStatisticsVO">
+    select 
+		u.id,
+		u.nick_name nickName,
+		u.mobile,
+		u.sex,
+		u.head_img headImg,
+		ifnull(ua.amount,0) sumCommissionAccountAmount,
+		ifnull((
+		select sum(ual.change_amount) from  user_commission_account_logs ual 
+		left join user_commission_accounts ua on ual.user_account_id=ua.id
+		where 1=1
+		and ua.user_id=u.id
+	    <if test="startTime != null and startTime != ''">
+	        and date_format(ual.created_at,'%Y-%m-%d') &gt;= #{startTime}
+	    </if>
+	    <if test="endTime != null and endTime != '' ">
+	        and date_format(ual.created_at,'%Y-%m-%d') &lt;= #{endTime}
+	    </if>
+		and ual.status=1
+		),0) sumCommissonAmount,
+		
+		ifnull((
+		select sum(ual.change_amount) from  user_commission_account_logs ual 
+		left join user_commission_accounts ua on ual.user_account_id=ua.id
+		where 1=1
+		and ua.user_id=u.id
+		and ual.status=1
+		and ual.record_type=0
+		<if test="startTime != null and startTime != ''">
+	        and date_format(ual.created_at,'%Y-%m-%d') &gt;= #{startTime}
+	    </if>
+	    <if test="endTime != null and endTime != '' ">
+	        and date_format(ual.created_at,'%Y-%m-%d') &lt;= #{endTime}
+	    </if>
+	    ),0) sumWithdrawAmount
+	    
+	 from users u
+	 left join user_commission_accounts ua on u.id=ua.user_id
+	 where 1=1
+ 	 <!--用户昵称或者手机号码-->
+     <if test="nickName !=null and nickName !='' ">
+            and (u.nick_name like '%${nickName}%'  or u.mobile like '%${nickName}%')
+     </if>
+     order by u.created_at desc
+    </select> 
+    
+    <!--WX查询账户T金和余额信息 -->
+    <select id="queryUserAccountInfo" resultType="com.wmeimob.yzfs.model.User" parameterType="java.lang.String">
+		select 
+		    u.id,
+			u.nick_name nickName,
+			u.sex,
+			u.mobile,
+			u.head_img headImg,
+			ifnull(ua.amount,0) accountAmount,
+			ifnull(uc.card_points,0) accountPoints,
+			u.pay_passwd payPasswd,
+			ua.id accountId,
+			uca.id commissionId,
+			uca.amount commissionAmount,
+			uca.withdraw_amount commissionWithdrawAmount,
+			uca.history_amount commissionHistoryAmount,
+			uc.id cardId ,
+			ua.withdraw_amount as withdrawAmount,
+			ua.history_amount as historyAmount
+		from users u
+		left join user_accounts ua on u.id=ua.user_id
+		left join user_cards uc on u.id=uc.user_id
+		left join user_commission_accounts uca on u.id=uca.user_id
+		where 1=1
+		and u.id=#{userId}
+        limit 0,1
+    </select>
+    
+	 <!-- 根据参数新查询用户信息 -->  
+	 <select id="queryUserByCondition" resultType="com.wmeimob.yzfs.model.User">
+		 select  
+		 <include refid="Base_Column_List" />
+		 from users   
+	     <where>
+	 	 <if test="id != null" >
+	        id = #{id,jdbcType=VARCHAR}
+	     </if>
+	 	 <if test="type != null" >
+	        AND type = #{type,jdbcType=BIT}
+	      </if>
+	      <if test="shopId != null" >
+	        AND shop_id = #{shopId,jdbcType=VARCHAR}
+	      </if>
+	      <if test="loginName != null" >
+	        AND login_name = #{loginName,jdbcType=VARCHAR}
+	      </if>
+	      <if test="nickName != null" >
+	        AND nick_name = #{nickName,jdbcType=VARCHAR}
+	      </if>
+	      <if test="passwd != null" >
+	        AND passwd = #{passwd,jdbcType=VARCHAR}
+	      </if>
+	      <if test="sex != null" >
+	        AND sex = #{sex,jdbcType=BIT}
+	      </if>
+	      <if test="headImg != null" >
+	        AND head_img = #{headImg,jdbcType=VARCHAR}
+	      </if>
+	      <if test="mobile != null" >
+	        AND mobile = #{mobile,jdbcType=VARCHAR}
+	      </if>
+	      <if test="province != null" >
+	        AND province = #{province,jdbcType=VARCHAR}
+	      </if>
+	      <if test="city != null" >
+	        AND city = #{city,jdbcType=VARCHAR}
+	      </if>
+	      <if test="district != null" >
+	        AND district = #{district,jdbcType=VARCHAR}
+	      </if>
+	      <if test="address != null" >
+	        AND address = #{address,jdbcType=VARCHAR}
+	      </if>
+	      <if test="wxOpenId != null" >
+	        AND wx_open_id = #{wxOpenId,jdbcType=VARCHAR}
+	      </if>
+	      <if test="qrcodeTicket != null" >
+	        AND qrcode_ticket = #{qrcodeTicket,jdbcType=VARCHAR}
+	      </if>
+	      <if test="recommendQty != null" >
+	        AND recommend_qty = #{recommendQty,jdbcType=INTEGER}
+	      </if>
+	      <if test="recommendUserId != null" >
+	        AND recommend_user_id = #{recommendUserId,jdbcType=VARCHAR}
+	      </if>
+	      <if test="createdAt != null" >
+	        AND created_at = #{createdAt,jdbcType=TIMESTAMP}
+	      </if>
+	      <if test="updatedAt != null" >
+	        AND updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+	      </if>
+	      <if test="status != null" >
+	        AND status = #{status,jdbcType=BIT}
+	      </if>
+	 </where>  
+	</select>
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.ExpressTempAreaMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.ExpressTempArea" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="express_temp_details_id" property="expressTempDetailsId" jdbcType="INTEGER" />
+    <result column="express_lv" property="expressLv" jdbcType="INTEGER" />
+    <result column="area_id" property="areaId" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, express_temp_details_id,expressLv, area_id, created_at, updated_at, status
+  </sql>
+  
+  <!-- 根据区域ID查询区域信息列表 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from express_temp_area
+    where area_id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 根据运费详情ID删除运费下的区域列表 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from express_temp_area where id !=#{id}
+  </delete>
+  
+  
+  <!-- 批量新增运费区域信息 -->
+  <insert id="insertBatch"  parameterType="java.util.List">
+    insert into express_temp_area (express_temp_details_id,express_lv,area_id, created_at, updated_at, status)
+    values  
+    <foreach collection="list" item="item" index="index" separator=","  >  
+     ( 
+       #{item.expressTempDetailsId,jdbcType=INTEGER},#{item.expressLv,jdbcType=INTEGER},#{item.areaId,jdbcType=INTEGER}, 
+       #{item.createdAt,jdbcType=TIMESTAMP}, #{item.updatedAt,jdbcType=TIMESTAMP}, #{item.status,jdbcType=BIT}
+     )
+    </foreach> 
+  </insert>
+</mapper>

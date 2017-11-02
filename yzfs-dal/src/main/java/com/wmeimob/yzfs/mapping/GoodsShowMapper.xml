@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.GoodsShowMapper">
+	<resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.GoodsShow">
+		<id column="id" jdbcType="VARCHAR" property="goodsShowId" />
+		<result column="show_templeate_id" jdbcType="VARCHAR" property="showTempleateId" />
+		<result column="thumbs_count" jdbcType="INTEGER" property="thumbsCount" />
+		<result column="pic_key" jdbcType="VARCHAR" property="picKey" />
+		<result column="good_id" jdbcType="VARCHAR" property="goodId" />
+		<result column="good_name" jdbcType="VARCHAR" property="goodName" />
+		<result column="head_img" jdbcType="VARCHAR" property="headImg" />
+		<result column="sku_name" jdbcType="VARCHAR" property="skuName" />
+		<result column="neck_name" jdbcType="VARCHAR" property="neckName" />
+		<result column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="nick_name" jdbcType="VARCHAR" property="nickName" />
+		<result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+		<result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+		<result column="status" jdbcType="BIT" property="status" />
+		<result column="is_thumbs" jdbcType="INTEGER" property="isThumbs" />
+		<result column="spu_keys" jdbcType="VARCHAR" property="goodsPickeys" />
+		<collection property="thumbsList" javaType="ArrayList" ofType="com.wmeimob.yzfs.model.Thumbs"
+            select="com.wmeimob.yzfs.dao.GoodsShowMapper.selectThumbsListByGoodsShow"  column="{goodsShowId=id}"/>
+	</resultMap>
+
+	<resultMap id="BaseResultMap2" type="com.wmeimob.yzfs.model.OrderItem">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="good_id" jdbcType="VARCHAR" property="goodId" />
+		<result column="name" jdbcType="INTEGER" property="name" />
+		<result column="order_item_sku_name" jdbcType="VARCHAR" property="orderItemSkuName" />
+		<result column="quantity" jdbcType="VARCHAR" property="quantity" />
+		<result column="sale_price" jdbcType="VARCHAR" property="salePrice" />
+		<result column="spu_keys" jdbcType="VARCHAR" property="spuKeys" />
+		
+	</resultMap>
+	
+	<select id="selectThumbsListByGoodsShow" resultType="com.wmeimob.yzfs.model.Thumbs">
+		select T1.id,T1.user_id as userId,T1.created_at as createdAt,T2.head_img as headImg
+		from good_show_thumbs T1
+		inner join users T2 on T1.user_id = T2.id
+		
+		where T1.status=1
+		<if test="goodsShowId != null">
+			and good_show_id = #{goodsShowId}
+		</if>
+		order by T1.created_at desc
+	</select>
+	
+	<sql id="Base_Column_List">
+		id, pic_key, show_templeate_id, good_id, good_name,
+		sku_name, neck_name, user_id, thumbs_count,
+		nick_name, created_at, updated_at, status
+	</sql>
+
+	<select id="queryShowListByParamsFromWX" parameterType="com.wmeimob.yzfs.model.GoodsShow" resultMap="BaseResultMap">
+		select T1.id, T2.head_img,T1.nick_name, T1.good_id,T1.pic_key, T1.good_name,T1.thumbs_count,T1.created_at
+			,T1.show_templeate_id,IFNULL(T3.thumbsCount,0) as is_thumbs,T4.spu_keys 
+		from good_show T1
+		left join users T2 on T1.user_id = T2.id
+		left join ec_goods T4 on T1.good_id = T4.id
+		left join 
+			(
+				select count(1) as thumbsCount,T5.user_id,T5.good_show_id
+				from good_show_thumbs T5
+				where T5.status = 1 and T5.user_id = #{userId,jdbcType=VARCHAR} 
+				group by T5.good_show_id
+			) T3 on T1.id = T3.good_show_id
+		where 1=1 and T1.status = 1
+		<if test="queryType == 1">
+			and T1.user_id = #{userId,jdbcType=VARCHAR}
+		</if>
+		order by T1.created_at desc
+		limit #{pageIndex},#{pageSize}
+	</select>
+	
+	<select id="queryOrderItemListByParamsFromWX" parameterType="com.wmeimob.yzfs.model.OrderItem" resultMap="BaseResultMap2">
+		select T1.id,T1.good_id,T3.`name`,T4.order_item_sku_name,T1.quantity,T1.sale_price,T3.spu_keys
+		from order_items T1
+		inner join orders T2 on T1.container_id = T2.id
+		inner join ec_goods T3 on T1.good_id = T3.id
+		inner join order_item_sku T4 on T4.id = T1.good_spec_id
+		left join good_show T5 on T5.order_item_id = T1.id
+		where T1.container_type = 0
+		and T2.order_status in(3,5)
+		and T2.owner_id = #{userId,jdbcType=VARCHAR}
+		and T5.id is null
+		limit #{pageIndex},#{pageSize}
+	</select>
+	
+	<insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.GoodsShow">
+		insert into good_show
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="goodsShowId != null">
+				id,
+			</if>
+			<if test="thumbsCount != null">
+				thumbs_count,
+			</if>
+			<if test="picKey != null">
+				pic_key,
+			</if>
+			<if test="showTempleateId != null">
+				show_templeate_id,
+			</if>
+			<if test="goodId != null">
+				good_id,
+			</if>
+			<if test="goodName != null">
+				good_name,
+			</if>
+			<if test="skuName != null">
+				sku_name,
+			</if>
+			<if test="neckName != null">
+				neck_name,
+			</if>
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="nickName != null">
+				nick_name,
+			</if>
+			<if test="createdAt != null">
+				created_at,
+			</if>
+			<if test="updatedAt != null">
+				updated_at,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="orderItemId != null">
+				order_item_id,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="goodsShowId != null">
+				#{goodsShowId},
+			</if>
+			<if test="thumbsCount != null">
+				#{thumbsCount},
+			</if>
+			<if test="picKey != null">
+				#{picKey},
+			</if>
+			<if test="showTempleateId != null">
+				#{showTempleateId},
+			</if>
+			<if test="goodId != null">
+				#{goodId},
+			</if>
+			<if test="goodName != null">
+				#{goodName},
+			</if>
+			<if test="skuName != null">
+				#{skuName},
+			</if>
+			<if test="neckName != null">
+				#{neckName},
+			</if>
+			<if test="userId != null">
+				#{userId},
+			</if>
+			<if test="nickName != null">
+				#{nickName},
+			</if>
+			<if test="createdAt != null">
+				#{createdAt},
+			</if>
+			<if test="updatedAt != null">
+				#{updatedAt},
+			</if>
+			<if test="status != null">
+				#{status},
+			</if>
+			<if test="orderItemId != null">
+				#{orderItemId},
+			</if>
+		</trim>
+	</insert>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.GoodsShow" >
+		update good_show
+	    <set >
+			<if test="thumbsCount != null">
+				thumbs_count = #{thumbsCount},
+			</if>
+			<if test="picKey != null">
+				pic_key = #{picKey},
+			</if>
+			<if test="showTempleateId != null">
+				show_templeate_id = #{showTempleateId},
+			</if>
+			<if test="goodId != null">
+				good_id = #{goodId},
+			</if>
+			<if test="goodName != null">
+				good_name = #{goodName},
+			</if>
+			<if test="skuName != null">
+				sku_name = #{skuName},
+			</if>
+			<if test="neckName != null">
+				neck_name = #{neckName},
+			</if>
+			<if test="userId != null">
+				user_id = #{userId},
+			</if>
+			<if test="nickName != null">
+				nick_name = #{nickName},
+			</if>
+			<if test="createdAt != null">
+				created_at = #{createdAt},
+			</if>
+			<if test="updatedAt != null">
+				updated_at = #{updatedAt},
+			</if>
+			<if test="status != null">
+				status = #{status},
+			</if>
+			<if test="orderItemId != null">
+				order_item_id = #{orderItemId},
+			</if>
+	    </set>
+	    where id = #{goodsShowId,jdbcType=VARCHAR}
+	</update>
+	
+	<select id="selectByPrimaryKey" parameterType="com.wmeimob.yzfs.model.GoodsShow" resultMap="BaseResultMap">
+		select T1.id, T2.head_img,T1.nick_name, T1.good_id,T1.pic_key, T1.good_name,T1.thumbs_count,T1.created_at,T1.show_templeate_id,IFNULL(T3.thumbsCount,0) as is_thumbs
+		from good_show T1
+		left join users T2 on T1.user_id = T2.id
+		left join 
+			(
+				select count(1) as thumbsCount,T5.user_id,T5.good_show_id
+				from good_show_thumbs T5
+				where T5.status = 1 and T5.user_id = #{userId,jdbcType=VARCHAR} 
+				group by T5.good_show_id
+			) T3 on T1.id = T3.good_show_id
+		where T1.id = #{goodsShowId,jdbcType=VARCHAR}
+    </select>
+    
+    <select id="selectThumbs" parameterType="com.wmeimob.yzfs.model.Thumbs" resultType="com.wmeimob.yzfs.model.Thumbs">
+		select T1.id,T1.user_id as userId,T1.created_at as createdAt
+		from good_show_thumbs T1
+		where 1=1
+		<if test="id != null">
+			and id = #{id}
+		</if>
+		<if test="userId != null">
+			and user_id = #{userId}
+		</if>
+		<if test="goodsShowId != null">
+			and good_show_id = #{goodsShowId}
+		</if>
+    </select>
+    
+    <insert id="insertSelectiveThumbs" parameterType="com.wmeimob.yzfs.model.Thumbs">
+		insert into good_show_thumbs
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="goodsShowId != null">
+				good_show_id,
+			</if>
+			<if test="createdAt != null">
+				created_at,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id},
+			</if>
+			<if test="userId != null">
+				#{userId},
+			</if>
+			<if test="goodsShowId != null">
+				#{goodsShowId},
+			</if>
+			<if test="createdAt != null">
+				#{createdAt},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	
+	<update id="updateThumbsByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.Thumbs" >
+		update good_show_thumbs
+	    <set >
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+	    </set>
+	    where id = #{id,jdbcType=VARCHAR}
+	</update>
+	
+	
+</mapper>

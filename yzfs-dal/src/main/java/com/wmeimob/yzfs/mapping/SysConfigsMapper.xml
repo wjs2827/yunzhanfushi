@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.SysConfigsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.SysConfigs" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="config_name" property="configName" jdbcType="VARCHAR" />
+    <result column="config_value" property="configValue" jdbcType="DECIMAL" />
+    <result column="config_code" property="configCode" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  
+    <sql id="Base_Column_List" >
+    id, type, config_name, config_value, config_code, created_at, updated_at, status
+  </sql>
+  
+  <!-- 根据参数查询单个参数信息 -->
+  <select id="querySysConfigByParams" parameterType="com.wmeimob.yzfs.model.SysConfigs" resultType="com.wmeimob.yzfs.vo.SysConfigsVO">
+     select 
+	     id,
+	     type,
+	     config_name configName,
+	     config_value configValue,
+	     config_code  configCode
+     from sys_configs
+     where 1=1
+     and status=1
+    <if test="id != null" >
+      and id = #{id,jdbcType=VARCHAR}
+    </if>
+    <if test="configCode != null" >
+      and config_code = #{configCode,jdbcType=VARCHAR}
+    </if>
+  </select>
+  
+  <!-- 根据参数查询参数列表信息 -->
+  <select id="queryListByParams" parameterType="com.wmeimob.yzfs.model.SysConfigs" resultType="com.wmeimob.yzfs.vo.SysConfigsVO">
+     select 
+	     id,
+	     type,
+	     config_name configName,
+	     config_value configValue,
+	     config_code  configCode,
+	     status
+     from sys_configs
+     where 1=1
+    <if test="type != null" >
+      and type = #{type,jdbcType=BIT}
+    </if>
+  </select>
+  
+  <!-- 新增参数设置信息 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.SysConfigs" >
+    insert into sys_configs
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="configName != null" >
+        config_name,
+      </if>
+      <if test="configValue != null" >
+        config_value,
+      </if>
+      <if test="configCode != null" >
+        config_code,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="configName != null" >
+        #{configName,jdbcType=VARCHAR},
+      </if>
+      <if test="configValue != null" >
+        #{configValue,jdbcType=DECIMAL},
+      </if>
+      <if test="configCode != null" >
+        #{configCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据参数修改参数信息 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.SysConfigs" >
+    update sys_configs
+    <set >
+      <if test="type != null" >
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="configName != null" >
+        config_name = #{configName,jdbcType=VARCHAR},
+      </if>
+      <if test="configValue != null" >
+        config_value = #{configValue,jdbcType=DECIMAL},
+      </if>
+      <if test="configCode != null" >
+        config_code = #{configCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+
+  
+  <select id="querySysConfigByCode" resultType="com.wmeimob.yzfs.model.SysConfigs">
+		select
+		 id,
+	     type,
+	     config_name configName,
+	     config_value configValue,
+	     config_code  configCode 
+		from sys_configs
+		where status=1
+		<if test="configCode != null and configCode !=''">
+			and config_code = #{configCode,jdbcType=VARCHAR}
+		</if>
+	</select>
+</mapper>

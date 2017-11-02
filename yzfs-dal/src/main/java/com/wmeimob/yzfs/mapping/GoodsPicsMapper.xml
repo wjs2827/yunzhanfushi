@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.GoodsPicsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.GoodsPics" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="pic_key" property="picKey" jdbcType="VARCHAR" />
+    <result column="good_id" property="goodId" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="rank" property="rank" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, pic_key, good_id, created_at, rank
+  </sql>
+  
+  <!-- 克隆图片 -->
+  <insert id="copyPic">
+	insert into ec_goods_pics
+	(
+		id,
+		pic_key,
+		good_id,
+		created_at,
+		rank
+	)
+	select 
+		uuid(),
+		pic_key,
+		#{id},
+		created_at,
+		rank
+	from ec_goods_pics 
+	where good_id=#{goodId,jdbcType=VARCHAR}
+  </insert>
+  
+  <!-- 批量新增图片 -->
+  <insert id="insertBatch" useGeneratedKeys="false" parameterType="java.util.List">
+    insert into ec_goods_pics (id, pic_key, good_id,
+    created_at, rank)
+    values
+    <foreach collection="list" item="item" index="index" separator="," >
+      (#{item.id,jdbcType=VARCHAR}, #{item.picKey,jdbcType=VARCHAR}, #{item.goodId,jdbcType=VARCHAR},
+     SYSDATE(), #{item.rank,jdbcType=INTEGER})
+    </foreach>
+  </insert>
+
+  <!-- 根据商品ID查询商品图片列表信息 -->
+  <select id="selectByGoodsId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from ec_goods_pics
+    where good_id = #{id}
+    order by rank ,created_at
+  </select>
+
+  <!-- 根据商品ID删除商品图片信息 -->
+  <delete id="deleteByGoodsId" parameterType="java.lang.String" >
+    delete from ec_goods_pics
+    where good_id = #{goodsId,jdbcType=VARCHAR}
+  </delete>
+</mapper>

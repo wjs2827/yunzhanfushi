@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.UserCommissionAccountLogsMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.UserCommissionAccountLogs" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="user_account_id" property="userAccountId" jdbcType="VARCHAR" />
+    <result column="record_type" property="recordType" jdbcType="TINYINT" />
+    <result column="change_type" property="changeType" jdbcType="VARCHAR" />
+    <result column="user_account_log_id" property="userAccountLogId" jdbcType="VARCHAR" />
+    <result column="change_note" property="changeNote" jdbcType="VARCHAR" />
+    <result column="changed_at" property="changedAt" jdbcType="TIMESTAMP" />
+    <result column="change_amount" property="changeAmount" jdbcType="DECIMAL" />
+    <result column="account_amount" property="accountAmount" jdbcType="DECIMAL" />
+    <result column="withdraw_type" property="withdrawType" jdbcType="TINYINT" />
+    <result column="withdraw_no" property="withdrawNo" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_account_id, record_type, change_type, user_account_log_id, change_note, 
+    changed_at, change_amount, account_amount, withdraw_type, withdraw_no, created_at, 
+    updated_at, status
+  </sql>
+  
+  <!--  查询用户佣金日志记录信息 -->
+  <select id="selectByPrimaryKey" resultType="com.wmeimob.yzfs.vo.UserCommissionAccountLogsVO" parameterType="com.wmeimob.yzfs.vo.UserCommissionAccountLogsVO" >
+	select 
+		u.id userId,
+		u.nick_name nickName,
+		u.mobile,
+		ucl.record_type recordType,
+        ucl.change_type changeType,
+		ucl.change_amount changeAmount,
+        ucl.withdraw_type withdrawType,
+        ucl.withdraw_no withdrawNo,
+		ucl.change_note changeNote,
+		ucl.account_amount accountAmount,
+		ucl.updated_at updatedAt 
+	from user_commission_account_logs ucl
+	left join user_commission_accounts ua on  ucl.user_account_id=ua.id
+	left join users u on ua.user_id=u.id
+	<where>
+	  ucl.status=1
+	  and ua.status=1
+	  and u.status=1
+	  <if test="recordType != null and recordType != ''">
+        and ucl.record_type=#{recordType}
+      </if>
+      <if test="startTime != null and startTime != ''">
+        and date_format(ucl.updated_at,'%Y-%m-%d') &gt;= #{startTime}
+      </if>
+      <if test="endTime != null and endTime != '' ">
+        and date_format(ucl.updated_at,'%Y-%m-%d') &lt;= #{endTime}
+      </if>
+      <if test="nickName != null and nickName != '' ">
+        and (u.nick_name like '%${nickName}%'
+        or u.mobile like '%${nickName}%')
+      </if>
+	</where>
+  </select>
+  
+   <!--WX查询用户佣金日志记录信息 -->
+  <select id="queryCommissionListByParams" resultType="com.wmeimob.yzfs.vo.UserCommissionAccountLogsVO" parameterType="com.wmeimob.yzfs.vo.UserCommissionAccountLogsVO" >
+	select 
+		ucl.record_type recordType,
+        ucl.change_type changeType,
+		ucl.change_amount changeAmount,
+        ucl.withdraw_type withdrawType,
+        ucl.withdraw_no withdrawNo,
+		ucl.change_note changeNote,
+		ucl.account_amount accountAmount,
+		date_format(ucl.created_at,'%Y-%m-%d %T') createdTime,
+		ucl.updated_at updatedAt 
+	from user_commission_account_logs ucl
+	left join user_commission_accounts ua on  ucl.user_account_id=ua.id
+	<where>
+	  ucl.status=1
+	  and ua.status=1
+      and ucl.record_type=#{recordType}
+      and ua.user_id =#{userId}
+	</where>
+  </select>
+  
+  <!-- 新增用户佣金日志记录 -->
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.vo.UserCommissionAccountLogsVO" >
+    insert into user_commission_account_logs
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userAccountId != null" >
+        user_account_id,
+      </if>
+      <if test="recordType != null" >
+        record_type,
+      </if>
+      <if test="changeType != null" >
+        change_type,
+      </if>
+      <if test="userAccountLogId != null" >
+        user_account_log_id,
+      </if>
+      <if test="changeNote != null" >
+        change_note,
+      </if>
+      <if test="changedAt != null" >
+        changed_at,
+      </if>
+      <if test="changeAmount != null" >
+        change_amount,
+      </if>
+      <if test="accountAmount != null" >
+        account_amount,
+      </if>
+      <if test="withdrawType != null" >
+        withdraw_type,
+      </if>
+      <if test="withdrawNo != null" >
+        withdraw_no,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="userAccountId != null" >
+        #{userAccountId,jdbcType=VARCHAR},
+      </if>
+      <if test="recordType != null" >
+        #{recordType,jdbcType=TINYINT},
+      </if>
+      <if test="changeType != null" >
+        #{changeType,jdbcType=VARCHAR},
+      </if>
+      <if test="userAccountLogId != null" >
+        #{userAccountLogId,jdbcType=VARCHAR},
+      </if>
+      <if test="changeNote != null" >
+        #{changeNote,jdbcType=VARCHAR},
+      </if>
+      <if test="changedAt != null" >
+        #{changedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="changeAmount != null" >
+        #{changeAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="accountAmount != null" >
+        #{accountAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="withdrawType != null" >
+        #{withdrawType,jdbcType=TINYINT},
+      </if>
+      <if test="withdrawNo != null" >
+        #{withdrawNo,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+</mapper>

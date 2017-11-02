@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.OrderItemSkuMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.OrderItemSku" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="order_item_sku_name" property="orderItemSkuName" jdbcType="VARCHAR" />
+    <result column="spu_id" property="spuId" jdbcType="VARCHAR" />
+    <result column="sku_code" property="skuCode" jdbcType="VARCHAR" />
+    <result column="pic_key" property="picKey" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, order_item_sku_name,spu_id, sku_code, pic_key, created_at, updated_at, status
+  </sql>
+  
+  <!-- 根据商品ID和SKU_CODE查询是否已经添加到购物车中 -->
+  <select id="queryGoodSkuCodeExist" resultMap="BaseResultMap" parameterType="java.util.List" >
+    select 
+    <include refid="Base_Column_List" />
+    from order_item_sku
+    where 1=1
+    and status=1
+    and spu_id=#{spuId}
+    and sku_code=#{skuCode}
+  </select>
+  
+  <!-- 根据参数查询商品SKU信息 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.util.List" >
+    select 
+    <include refid="Base_Column_List" />
+    from order_item_sku
+    where id in 
+    <foreach collection="list" item = "item" open="(" separator="," close=")">
+     #{item}  
+    </foreach> 
+     and status=1
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from order_item_sku
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wmeimob.yzfs.model.OrderItemSku" >
+    insert into order_item_sku (id, order_item_sku_name,spu_id, sku_code, 
+      pic_key, created_at, updated_at, 
+      status)
+    values (#{id,jdbcType=INTEGER}, #{orderItemSkuName,jdbcType=VARCHAR},#{spuId,jdbcType=VARCHAR},  #{skuCode,jdbcType=VARCHAR}, 
+      #{picKey,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, 
+      #{status,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.OrderItemSku" useGeneratedKeys="true" keyProperty="id">
+    insert into order_item_sku
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="orderItemSkuName != null" >
+        order_item_sku_name,
+      </if>
+      <if test="spuId != null" >
+        spu_id,
+      </if>
+      <if test="skuCode != null" >
+        sku_code,
+      </if>
+      <if test="picKey != null" >
+        pic_key,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="orderItemSkuName != null" >
+        #{orderItemSkuName,jdbcType=VARCHAR},
+      </if>
+      <if test="spuId != null" >
+        #{spuId,jdbcType=VARCHAR},
+      </if>
+      <if test="skuCode != null" >
+        #{skuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="picKey != null" >
+        #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.OrderItemSku" >
+    update order_item_sku
+    <set >
+      <if test="orderItemSkuName != null" >
+        order_item_sku_name = #{orderItemSkuName,jdbcType=VARCHAR},
+      </if>
+      <if test="skuCode != null" >
+        sku_code = #{skuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="picKey != null" >
+        pic_key = #{picKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wmeimob.yzfs.model.OrderItemSku" >
+    update order_item_sku
+    set order_item_sku_name = #{orderItemSkuName,jdbcType=VARCHAR},
+      sku_code = #{skuCode,jdbcType=VARCHAR},
+      pic_key = #{picKey,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=BIT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 根据选中的购物车ID删除商品下的SKU -->
+  <update id="deleteSkuCodeByItemId" parameterType="java.util.List" >
+     delete from order_item_sku 
+     where id in
+     (
+     select good_spec_id from  order_items 
+     where id in
+     <foreach collection="list" item = "item" open="(" separator="," close=")">
+       #{item}  
+     </foreach>  
+     )
+  </update>
+  
+   <!-- 根据选中的购物车ID删除商品下的NECK_SKU -->
+  <update id="deleteNeckSkuCodeByItemId" parameterType="java.util.List" >
+    delete from order_item_sku 
+     where id in
+     (
+     select good_neck_id from  order_items 
+     where id in
+     <foreach collection="list" item = "item" open="(" separator="," close=")">
+       #{item}  
+     </foreach>  
+     ) 
+  </update>
+  
+</mapper>

@@ -1,0 +1,250 @@
+@CHARSET "UTF-8";
+
+html, body, div, span, iframe, h1, h2, h3, h4, h5, h6, p, blockquote,
+	pre, a, address, big, cite, code, del, em, font, img, ins, small,
+	strong, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form,
+	label, legend {
+	margin: 0;
+	padding: 0;
+}
+
+ol, ul {
+	list-style: none;
+}
+
+:focus {
+	outline: 0;
+}
+
+a img {
+	border: 0;
+}
+
+img {
+	vertical-align: middle;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+ins {
+	text-decoration: none;
+}
+
+del {
+	text-decoration: line-through;
+}
+
+i, em {
+	font-style: normal;
+}
+
+.fl {
+	float: left;
+}
+
+.fr {
+	float: right;
+}
+
+.fn {
+	float: none;
+}
+
+.al {
+	text-align: left;
+}
+
+.ac {
+	text-align: center;
+}
+
+.ar {
+	text-align: right;
+}
+
+.clr {
+	display: block;
+	overflow: hidden;
+	clear: both;
+	height: 0;
+	line-height: 0;
+	font-size: 0;
+}
+
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+.clearfix {
+	display: inline-table;
+} /* Hides from IE-mac \*/
+* html .clearfix {
+	height: 1%;
+}
+
+.clearfix {
+	display: block;
+} /* End hide from IE-mac */
+*+html .clearfix {
+	min-height: 1%;
+}
+
+.star {
+	color: #f96600;
+}
+
+.msg {
+	color: #f96600;
+	font-size: 14px;
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+}
+
+.tip {
+	color: #666;
+}
+
+.thin-line {
+	height: 1px;
+	border-bottom: 1px solid #d7d7d7;
+	margin-bottom: 20px;
+	width: 100%;
+	overflow: hidden;
+}
+
+.confirmTips {
+	display: none;
+	position: FIXED;
+	width: 260px;
+	height: 130px;
+	background: #fff;
+	top: 50%;
+	margin-top: 6px;
+	left: 50%;
+	margin-left: -130px;
+	box-shadow: inset 0px 0px 10px rgba(113, 210, 255, .3);
+}
+
+.confirmTipsFont {
+	height: 37px;
+	line-height: 37px;
+	color: #fff;
+	width: 97%;
+	background: #71d2ff;
+	padding-left: 3%;
+}
+
+.confirmProblem {
+	width: 90%;
+	height: 55px;
+	color: #71d2ff;
+	padding: 5px 0px 0px 10%;
+}
+
+.confirmProblem div {
+	margin-top: 10px;
+}
+
+.confirmCancelBtn {
+	width: 100%;
+	text-align: center;
+}
+
+.projextName {
+	width: 294px;
+	height: 25px;
+	border: 1px solid #A3C7E6;
+}
+
+.projectExplain {
+	float: left;
+	height: 100px;
+	width: 288px;
+	border-color: #A3C7E6;
+}
+
+.selectModel {
+	position: absolute;
+	background: #fff;
+	width: 294px;
+	left: 82px;
+	top: 80px;
+	border: 1px solid #A3C7E6;
+	padding: 0px;
+	display: none;
+	height: 63px;
+	overflow-y: scroll;
+}
+
+.confirmTip {
+	font-family: 微软雅黑;
+	display: none;
+	position: absolute;
+	width: 300px;
+	height: 155px;
+	background: #fff;
+	top: 50%;
+	margin-top: -77.5px;
+	left: 50%;
+	margin-left: -150px;
+	box-shadow: inset 0px 0px 10px rgba(70, 149, 217, .2);
+}
+
+.confirmTip select {
+	margin-top: 30px;
+	width: 60%;
+}
+
+.confirmTipFont {
+	height: 37px;
+	line-height: 37px;
+	color: #fff;
+	width: 97%;
+	background: #4695d9;
+	padding-left: 3%;
+	text-align: left !important;
+}
+
+.confirmCancelBtn {
+	width: 100%;
+	text-align: center;
+}
+
+.confirmCancelBtn a {
+	text-decoration: none;
+	display: inline-block;
+	width: 50px;
+	height: 23px;
+	line-height: 23px;
+	color: #fff;
+	background: #71D2FF;
+}
+
+.left {
+	float: left
+}
+
+.clear {
+	clear: both;
+}
+
+.center {
+	text-align: center
+}
+
+.time {
+	display: inline-block;
+	padding: 2px 4px;
+	background: #666;
+	color: #fff;
+	border-radius: 5px;
+	font-family: 微软雅黑;
+}

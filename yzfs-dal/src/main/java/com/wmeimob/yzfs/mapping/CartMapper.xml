@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wmeimob.yzfs.dao.CartMapper" >
+  <resultMap id="BaseResultMap" type="com.wmeimob.yzfs.model.Cart" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="owner_id" property="ownerId" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, owner_id, created_at, updated_at, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from ec_cart
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from ec_cart
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.wmeimob.yzfs.model.Cart" >
+    insert into ec_cart (id, owner_id, created_at, 
+      updated_at, status)
+    values (#{id,jdbcType=VARCHAR}, #{ownerId,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, 
+      #{updatedAt,jdbcType=TIMESTAMP}, #{status,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wmeimob.yzfs.model.Cart"  >
+    insert into ec_cart
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="ownerId != null" >
+        owner_id,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerId != null" >
+        #{ownerId,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wmeimob.yzfs.model.Cart" >
+    update ec_cart
+    <set >
+      <if test="ownerId != null" >
+        owner_id = #{ownerId,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wmeimob.yzfs.model.Cart" >
+    update ec_cart
+    set owner_id = #{ownerId,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=BIT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 通过cart查询 -->
+  <select id="selectByCart" parameterType="com.wmeimob.yzfs.model.Cart" resultMap="BaseResultMap">
+  	select  
+  	<include refid="Base_Column_List" />
+    from ec_cart 
+    <where>
+      <if test="ownerId != null" >
+        owner_id = #{ownerId,jdbcType=VARCHAR}
+      </if>
+      <if test="createdAt != null" >
+        and created_at = #{createdAt,jdbcType=TIMESTAMP}
+      </if>
+      <if test="updatedAt != null" >
+        and updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+      </if>
+      <if test="status != null" >
+        and status = #{status,jdbcType=BIT}
+      </if>
+    </where>
+      order by created_at
+  </select>
+  
+  <!-- 通过cartId 查询购物车明细 -->
+   <resultMap id="CartItemResultMap" type="com.wmeimob.yzfs.vo.CartDetailVO" >
+    <result column="shopId" property="shopId" jdbcType="VARCHAR" />
+    <result column="shopName" property="shopName" jdbcType="VARCHAR" />
+   	<collection property="orderItems" javaType="ArrayList" ofType="com.wmeimob.yzfs.vo.CartOrderItemVO">
+   		<result column="orderItemId" property="orderItemId" jdbcType="VARCHAR"/>
+   		<result column="good_id" property="goodId" jdbcType="VARCHAR"/>
+   		<result column="goodName" property="goodName" jdbcType="VARCHAR"/>
+   		<result column="sale_price" property="salePrice" jdbcType="DECIMAL"/>
+   		<result column="goodPic" property="goodPic" jdbcType="VARCHAR"/>
+   		<result column="good_spec_id" property="goodSpecId" jdbcType="VARCHAR"/>
+   		<result column="specName" property="specName" jdbcType="VARCHAR"/>
+   		<result column="quantity" property="quantity" jdbcType="INTEGER"/>
+   	</collection>
+  </resultMap>
+  <select id="selectCartItemById" parameterType="java.lang.String" resultType="com.wmeimob.yzfs.vo.CartOrderItemVO">
+	SELECT
+		oi.id orderItemId,
+		oi.good_id goodId,
+		eg.`name` goodName,
+		egs.sale_price salePrice,
+		egs.sale_points salePoints,
+		(
+			SELECT
+				egp.pic_key
+			FROM
+				ec_goods_pics egp
+			WHERE
+				eg.id = egp.good_id
+			ORDER BY egp.rank
+			LIMIT 1
+		) goodPic ,
+		oi.good_spec_id goodSpecId,
+		egs.`name` specName,
+		oi.quantity quantity,
+		eg.limited_count limitedCount
+	FROM
+		order_items oi
+	LEFT JOIN ec_goods_specs egs ON oi.good_spec_id = egs.id
+	LEFT JOIN ec_goods eg ON egs.good_id = eg.id
+	WHERE
+		oi.container_id = #{cartId}
+	AND oi.container_type = 1
+	AND oi.status = 1
+  </select>
+  
+  <!-- 通过item id 删除item -->
+  <delete id="deleteByItemIds">
+  	delete from order_items
+    where id in 
+    <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+    #{item}
+    </foreach>
+  </delete>
+</mapper>
